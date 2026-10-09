@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.*
+!.env.example
+/incoming/
+/data/
+/runs/
+/reports/
+python/.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+/scratch/
+.archify/
