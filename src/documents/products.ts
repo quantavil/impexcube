@@ -164,6 +164,9 @@ const BASE_COUNTRY_CODE_MAP: Record<string, string> = {
   NORWAY: 'NO',
   DENMARK: 'DK',
   POLAND: 'PL',
+  MAURETANIA: 'MR',
+  MAURITANIA: 'MR',
+  SWITZERLAND: 'CH',
 };
 
 export const COUNTRY_CODE_MAP: Record<string, string> = {
@@ -1210,10 +1213,9 @@ export async function processProductsFolder(
   }
   if (!templateXlsx) {
     for (const cand of [
-      resolve(folder, 'ProductFormat.xlsx'),
+      resolve('templates/ProductFormat.xlsx'),
       resolve('tests/fixtures/products/ProductFormat.xlsx'),
-      resolve('incoming/INMBD6_001/ProductFormat.xlsx'),
-      resolve('ProductFormat.xlsx'),
+      resolve(folder, 'ProductFormat.xlsx'),
     ]) {
       if (existsSync(cand)) {
         templateXlsx = cand;

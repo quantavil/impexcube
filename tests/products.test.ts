@@ -227,7 +227,10 @@ test('processProductsFolder generates 37-column excel from extracted.json when n
   const tmpDir = await mkdtemp(join(tmpdir(), 'extracted-prod-test-'));
   const outPath = join(tmpDir, 'ProductFormat_generated.xlsx');
   try {
-    const result = await processProductsFolder('incoming/INTKD6_001', outPath);
+    const result = await processProductsFolder(
+      'tests/fixtures/INTKD6_001',
+      outPath,
+    );
     expect(result.total_items).toBe(3);
     expect(result.total_amount).toBe(89888);
     expect(result.items[0].EndUse).toBe('GNX200');

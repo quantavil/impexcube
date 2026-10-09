@@ -66,6 +66,7 @@ export const ManifestSchema = z.strictObject({
   files: z
     .array(z.strictObject({ path: z.string().min(1), role: RoleSchema }))
     .min(1),
+  sourceJobNo: z.string().optional(),
   referenceOnly: z.boolean().default(false),
   productMode: z.string().optional(),
   instructions: z.record(z.string(), z.string()).default({}),

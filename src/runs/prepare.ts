@@ -150,14 +150,31 @@ export async function prepareRun(
   await journal.assertNoDuplicate(runId, shipment);
   await ensureContext(s, manifest.context);
   const candidates = await discoverCandidates(s, shipment);
-  const selected = selectSource(candidates, shipment);
+  let selected = selectSource(candidates, shipment, manifest.sourceJobNo);
   if (Array.isArray(selected))
     throw new Error(selected.map((i) => i.message).join('; '));
   if (selected.source.context.financialYear !== manifest.context.financialYear)
     throw new Error(
       'Previous-year source found; cross-year copy is not yet verified. Use the site to resolve this case.',
     );
-  const sourceSnapshot = await readSnapshot(s, selected.source.jobNo);
+  let sourceSnapshot = await readSnapshot(s, selected.source.jobNo);
+  if (
+    !manifest.sourceJobNo &&
+    sourceSnapshot.invoices.length !== shipment.invoices.length
+  ) {
+    for (const c of candidates) {
+      if (c.jobNo === selected.source.jobNo) continue;
+      const snap = await readSnapshot(s, c.jobNo);
+      if (snap.invoices.length === shipment.invoices.length) {
+        selected = {
+          source: c,
+          reason: 'exporter_fallback',
+        };
+        sourceSnapshot = snap;
+        break;
+      }
+    }
+  }
   const house = shipment.fields['general.customHouse']!.value!;
   const city = await resolveCustomsCity(s, selected.source.jobNo, house);
   shipment.fields['general.customCity'] = {

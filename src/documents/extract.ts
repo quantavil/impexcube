@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { basename, extname } from 'node:path';
+import mammoth from 'mammoth';
 import { PDFParse } from 'pdf-parse';
 import * as XLSX from 'xlsx';
 import type { DocumentText, Manifest } from '../domain/model';
@@ -68,6 +69,27 @@ export async function readSingleDocument(
       reader: 'text',
       pages: [{ page: 1, text }],
       needsVisual: false,
+    });
+  }
+
+  if (ext === '.docx') {
+    const res = (await (mammoth as any).convertToMarkdown({
+      buffer: Buffer.from(fileBytes),
+    })) as { value: string; messages: Array<{ message: string }> };
+    const markdown = res.value.replace(/\\([-.\\_()[\]{}*+?^$])/g, '$1');
+    const lines = markdown.split('\n').map((text: string, idx: number) => ({
+      line: idx + 1,
+      text,
+    }));
+    return DocumentSchema.parse({
+      file: filename,
+      role,
+      reader: 'mammoth',
+      markdown,
+      lines,
+      pages: [{ page: 1, text: markdown }],
+      warnings: res.messages.map((m: { message: string }) => m.message),
+      needsVisual: lines.length === 0 || !markdown.trim(),
     });
   }
 

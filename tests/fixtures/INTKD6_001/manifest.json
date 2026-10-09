@@ -1,0 +1,80 @@
+{
+  "shipmentId": "INTKD6_001",
+  "context": {
+    "branch": "MORADABAD",
+    "financialYear": "2026-2027"
+  },
+  "referenceOnly": false,
+  "files": [
+    {
+      "path": "INV- 1112370.txt",
+      "role": "invoice"
+    },
+    {
+      "path": "PL- 1112370.txt",
+      "role": "packing"
+    },
+    {
+      "path": "verified-exporter-master.txt",
+      "role": "instructions"
+    }
+  ],
+  "instructions": {
+    "general.mode": "L",
+    "general.consignee": "TO ORDER",
+    "general.consigneeAddress": "ABIDJAN, CÔTE D'IVOIRE",
+    "general.consigneeCountry": "CI",
+    "general.buyerDifferent": "false",
+    "general.stateOrigin": "UTTARAKHAND",
+    "shipment.destinationCountry": "CI",
+    "shipment.destinationPort": "CIABJ",
+    "shipment.dischargeCountry": "CI",
+    "shipment.dischargePort": "CIABJ",
+    "shipment.marks": "01 - 53 BOXES, (LUT ARN NO. AD050326005815A), WE INTEND TO CLAIM REWARDS UNDER THE REMISSION OF DUTIES AND TAXES ON EXPORTED PRODUCTS (RODTEP) SCHEME AS APPLICABLE.",
+    "shipment.packingFrom": "1",
+    "shipment.packingTo": "53",
+    "shipment.packingUnit": "BOX",
+    "invoice[0].invoice.date": "2026-10-08",
+    "invoice[0].invoice.terms": "FOB",
+    "invoice[0].invoice.payment": "DP",
+    "invoice[0].charges.freight": "0.00",
+    "invoice[0].charges.freightCurrency": "USD",
+    "invoice[0].charges.insurance": "0.00",
+    "invoice[0].charges.insuranceCurrency": "USD",
+    "invoice[0].charges.insuranceRate": "0.00",
+    "invoice[0].charges.discount": "0.00",
+    "invoice[0].charges.discountCurrency": "USD",
+    "invoice[0].charges.discountRate": "0.00",
+    "invoice[0].charges.commission": "0.00",
+    "invoice[0].charges.commissionCurrency": "USD",
+    "invoice[0].charges.commissionRate": "0.00",
+    "invoice[0].charges.deduction": "0.00",
+    "invoice[0].charges.deductionCurrency": "USD",
+    "invoice[0].charges.deductionRate": "0.00",
+    "invoice[0].charges.packing": "0.00",
+    "invoice[0].charges.packingCurrency": "USD",
+    "invoice[0].charges.unitIncludes": "N",
+    "invoice[0].thirdParty.name": "",
+    "invoice[0].thirdParty.address1": "",
+    "invoice[0].thirdParty.address2": "",
+    "invoice[0].thirdParty.subdivision": "",
+    "invoice[0].thirdParty.city": "",
+    "invoice[0].thirdParty.pin": "",
+    "invoice[0].thirdParty.country": "",
+    "product[0].EndUse": "GNX200",
+    "product[0].IGST_PaymentStatus": "LUT",
+    "product[0].CountryDestination": "CI",
+    "product[0].StateOrigin": "05",
+    "product[0].DistrictOrigin": "56",
+    "product[1].EndUse": "GNX200",
+    "product[1].IGST_PaymentStatus": "LUT",
+    "product[1].CountryDestination": "CI",
+    "product[1].StateOrigin": "05",
+    "product[1].DistrictOrigin": "56",
+    "product[2].EndUse": "GNX200",
+    "product[2].IGST_PaymentStatus": "LUT",
+    "product[2].CountryDestination": "CI",
+    "product[2].StateOrigin": "05",
+    "product[2].DistrictOrigin": "56"
+  }
+}

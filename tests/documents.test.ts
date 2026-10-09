@@ -111,9 +111,23 @@ test('malformed AI evidence is rejected with a contextual shape error', () => {
 
 test('INTKD6_001 validates cleanly and ingests product instructions', async () => {
   const { loadShipment } = await import('../src/runs/prepare');
-  const { shipment } = await loadShipment('incoming/INTKD6_001');
+  const { shipment } = await loadShipment('tests/fixtures/INTKD6_001');
   expect(shipment.invoices.length).toBe(1);
   expect(shipment.products?.length).toBe(3);
   expect(shipment.products?.[0].fields['EndUse']?.value).toBe('GNX200');
   expect(shipment.products?.[0].fields['CountryDestination']?.value).toBe('CI');
+});
+
+test('docx document extracts clean markdown and lines via mammoth', async () => {
+  const { readSingleDocument } = await import('../src/documents/extract');
+  const doc = await readSingleDocument(
+    'tests/fixtures/documents/sample.docx',
+    'packing',
+  );
+  expect(doc.reader).toBe('mammoth');
+  expect(doc.markdown).toContain('DELTA ELECTRONICS');
+  expect(doc.markdown).toContain('SERCOM AON GROUP');
+  expect(doc.markdown).toContain('UT/1118644/26-27');
+  expect(doc.lines?.length).toBeGreaterThan(10);
+  expect(doc.needsVisual).toBe(false);
 });

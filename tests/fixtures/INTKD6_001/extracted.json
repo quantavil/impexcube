@@ -1,0 +1,1501 @@
+{
+  "context": {
+    "branch": "MORADABAD",
+    "financialYear": "2026-2027"
+  },
+  "fields": {
+    "general.mode": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.customCity": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.customHouse": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.jobDate": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.sbNumber": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.sbDate": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.heading": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.dockNo": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.exporter": {
+      "value": "Delta Electronics India Private Limited",
+      "status": "sourced",
+      "evidence": [
+        {
+          "file": "INV- 1112370.txt",
+          "raw": "Delta Electronics India Private Limited",
+          "page": 1
+        }
+      ]
+    },
+    "general.iec": {
+      "value": "0508083010",
+      "status": "sourced",
+      "evidence": [
+        {
+          "file": "verified-exporter-master.txt",
+          "raw": "IEC0508083010",
+          "page": 1
+        }
+      ]
+    },
+    "general.exporterAddress": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.gst": {
+      "value": "05AACCD9731G1ZR",
+      "status": "sourced",
+      "evidence": [
+        {
+          "file": "INV- 1112370.txt",
+          "raw": "05AACCD9731G1ZR",
+          "page": 1
+        }
+      ]
+    },
+    "general.category": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.class": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.adCode": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.iecBranch": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.reference": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.referenceDate": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.consignee": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.consigneeAddress": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.consigneeCountry": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.buyerDifferent": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.buyer": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.buyerAddress": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.buyerCountry": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.stateOrigin": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.assignedTo": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "general.moowr": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.destinationCountry": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.destinationPort": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.dischargeCountry": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.dischargePort": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.packages": {
+      "value": "53",
+      "status": "sourced",
+      "evidence": [
+        {
+          "file": "PL- 1112370.txt",
+          "raw": "53 NOS.",
+          "page": 1
+        }
+      ]
+    },
+    "shipment.packageUnit": {
+      "value": "BOX",
+      "status": "sourced",
+      "evidence": [
+        {
+          "file": "PL- 1112370.txt",
+          "raw": "Boxes",
+          "page": 1
+        }
+      ]
+    },
+    "shipment.grossWeight": {
+      "value": "9260",
+      "status": "sourced",
+      "evidence": [
+        {
+          "file": "PL- 1112370.txt",
+          "raw": "9260 KGS APPX",
+          "page": 1
+        }
+      ]
+    },
+    "shipment.grossUnit": {
+      "value": "KGS",
+      "status": "sourced",
+      "evidence": [
+        {
+          "file": "PL- 1112370.txt",
+          "raw": "9260 KGS APPX",
+          "page": 1
+        }
+      ]
+    },
+    "shipment.netWeight": {
+      "value": "8317",
+      "status": "sourced",
+      "evidence": [
+        {
+          "file": "PL- 1112370.txt",
+          "raw": "8317 KGS APPX",
+          "page": 1
+        }
+      ]
+    },
+    "shipment.netUnit": {
+      "value": "KGS",
+      "status": "sourced",
+      "evidence": [
+        {
+          "file": "PL- 1112370.txt",
+          "raw": "8317 KGS APPX",
+          "page": 1
+        }
+      ]
+    },
+    "shipment.marks": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.marksType": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.cargoNature": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.containerCount": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.sealType": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.annexure": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.loosePackages": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.mbl": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.mblDate": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.hbl": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.hblDate": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.rotation": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.rotationDate": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.sailingDate": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.shippingLine": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.preCarriage": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.receipt": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.voyage": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.vesselDate": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.cfs": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.volume": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.eta": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.etd": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.liner": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.cargoReceived": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.customsFormality": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.factoryStuffed": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.sample": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.factoryAddress": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.agency": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.packingFrom": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.packingTo": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    },
+    "shipment.packingUnit": {
+      "value": null,
+      "status": "unknown",
+      "evidence": []
+    }
+  },
+  "invoices": [
+    {
+      "invoice.number": {
+        "value": "UT/1112370/26-27",
+        "status": "sourced",
+        "evidence": [
+          {
+            "file": "INV- 1112370.txt",
+            "raw": "UT/1112370/26-27",
+            "page": 1
+          }
+        ]
+      },
+      "invoice.date": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "invoice.currency": {
+        "value": "USD",
+        "status": "sourced",
+        "evidence": [
+          {
+            "file": "INV- 1112370.txt",
+            "raw": "Total Invoice Value (USD)",
+            "page": 1
+          }
+        ]
+      },
+      "invoice.amount": {
+        "value": "89888.00",
+        "status": "sourced",
+        "evidence": [
+          {
+            "file": "INV- 1112370.txt",
+            "raw": "89,888.00",
+            "page": 1
+          }
+        ]
+      },
+      "invoice.terms": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "invoice.payment": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "invoice.period": {
+        "value": "75",
+        "status": "sourced",
+        "evidence": [
+          {
+            "file": "INV- 1112370.txt",
+            "raw": "0A75 -O/A 75 Days",
+            "page": 1
+          }
+        ]
+      },
+      "invoice.po": {
+        "value": "CH12442170",
+        "status": "sourced",
+        "evidence": [
+          {
+            "file": "PL- 1112370.txt",
+            "raw": "CH12442170",
+            "page": 1
+          }
+        ]
+      },
+      "invoice.poDate": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "invoice.contract": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "invoice.contractDate": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "invoice.exchangeRate": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "invoice.amountINR": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.freight": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.freightCurrency": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.insurance": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.insuranceCurrency": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.insuranceRate": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.discount": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.discountCurrency": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.discountRate": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.commission": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.commissionCurrency": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.commissionRate": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.deduction": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.deductionCurrency": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.deductionRate": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.packing": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.packingCurrency": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.unitIncludes": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.igstBasis": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.pmvBasis": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.taxableLut": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "charges.productAmount": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.name": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.address1": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.address2": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.subdivision": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.city": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.pin": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.country": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.aeoCode": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.aeoCountry": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.aeoRole": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      },
+      "thirdParty.termsPlace": {
+        "value": null,
+        "status": "unknown",
+        "evidence": []
+      }
+    }
+  ],
+  "products": [
+    {
+      "invoiceIndex": 0,
+      "itemId": "DIPPRA7TYI-002",
+      "fields": {
+        "Description": {
+          "value": "DIPPRA7TYI-002-TPS PP ORION T DPR4K 24KW 3/6 3P2L SC",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "DIPPRA7TYI-002-TPS PP ORION T DPR4K 24KW 3/6 3P2L",
+              "page": 1
+            },
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "SC",
+              "page": 1
+            }
+          ]
+        },
+        "EndUse": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "HAWBL_NO": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Total_Package": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Accessories": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RewardItem": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "IGST_PaymentStatus": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RITCCode": {
+          "value": "85044029",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "85044029",
+              "page": 1
+            }
+          ]
+        },
+        "ApplicableExpSchemes": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Quantity": {
+          "value": "50.000",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "50.000",
+              "page": 1
+            }
+          ]
+        },
+        "QuantityUnit": {
+          "value": "PCE",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "PCE",
+              "page": 1
+            }
+          ]
+        },
+        "SQCQTY": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "SQCUnit": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "UnitPrice": {
+          "value": "1040.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "1040.00",
+              "page": 1
+            }
+          ]
+        },
+        "ProductAmount": {
+          "value": "52000.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "52,000.00",
+              "page": 1
+            }
+          ]
+        },
+        "Per": {
+          "value": "1",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "Rate",
+              "page": 1
+            }
+          ]
+        },
+        "PerUnit": {
+          "value": "PCE",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "PCE",
+              "page": 1
+            }
+          ]
+        },
+        "drawback_schno": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_qty": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_rate": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_unit": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_desc": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "ROSLRate": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "ROSLCapValue": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "CountryDestination": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "FTACode": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "StateOrigin": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "DistrictOrigin": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Taxable_Value": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "IGST_Rate": {
+          "value": "0.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "0.00 %",
+              "page": 1
+            }
+          ]
+        },
+        "IGST_Amount": {
+          "value": "0.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "0.00",
+              "page": 1
+            }
+          ]
+        },
+        "GSTCCessAmount": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RODTEP": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RoDTEPQty": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Material": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "NetWeight": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "GrossWeight": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Cartons": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "PackingReference": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "ConversionFactor": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "AmountRounding": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "invoiceIndex": 0,
+      "itemId": "TPS1010028E",
+      "fields": {
+        "Description": {
+          "value": "TPS1010028E-DPR 4000B-48 ID:A2",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "TPS1010028E-DPR 4000B-48 ID:A2",
+              "page": 1
+            }
+          ]
+        },
+        "EndUse": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "HAWBL_NO": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Total_Package": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Accessories": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RewardItem": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "IGST_PaymentStatus": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RITCCode": {
+          "value": "85044029",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "85044029",
+              "page": 1
+            }
+          ]
+        },
+        "ApplicableExpSchemes": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Quantity": {
+          "value": "216.000",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "216.000",
+              "page": 1
+            }
+          ]
+        },
+        "QuantityUnit": {
+          "value": "PCE",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "PCE",
+              "page": 1
+            }
+          ]
+        },
+        "SQCQTY": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "SQCUnit": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "UnitPrice": {
+          "value": "173.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "173.00",
+              "page": 1
+            }
+          ]
+        },
+        "ProductAmount": {
+          "value": "37368.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "37,368.00",
+              "page": 1
+            }
+          ]
+        },
+        "Per": {
+          "value": "1",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "Rate",
+              "page": 1
+            }
+          ]
+        },
+        "PerUnit": {
+          "value": "PCE",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "PCE",
+              "page": 1
+            }
+          ]
+        },
+        "drawback_schno": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_qty": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_rate": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_unit": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_desc": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "ROSLRate": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "ROSLCapValue": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "CountryDestination": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "FTACode": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "StateOrigin": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "DistrictOrigin": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Taxable_Value": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "IGST_Rate": {
+          "value": "0.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "0.00 %",
+              "page": 1
+            }
+          ]
+        },
+        "IGST_Amount": {
+          "value": "0.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "0.00",
+              "page": 1
+            }
+          ]
+        },
+        "GSTCCessAmount": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RODTEP": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RoDTEPQty": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Material": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "NetWeight": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "GrossWeight": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Cartons": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "PackingReference": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "ConversionFactor": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "AmountRounding": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        }
+      }
+    },
+    {
+      "invoiceIndex": 0,
+      "itemId": "TPS1020028A",
+      "fields": {
+        "Description": {
+          "value": "TPS1020028A-PML-M-ORION ID: E1 WITH MULTIPLE PACKAGE",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "TPS1020028A-PML-M-ORION ID: E1 WITH MULTIPLE",
+              "page": 1
+            },
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "PACKAGE",
+              "page": 1
+            }
+          ]
+        },
+        "EndUse": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "HAWBL_NO": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Total_Package": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Accessories": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RewardItem": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "IGST_PaymentStatus": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RITCCode": {
+          "value": "85049090",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "85049090",
+              "page": 1
+            }
+          ]
+        },
+        "ApplicableExpSchemes": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Quantity": {
+          "value": "4.000",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "4.000",
+              "page": 1
+            }
+          ]
+        },
+        "QuantityUnit": {
+          "value": "PCE",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "PCE",
+              "page": 1
+            }
+          ]
+        },
+        "SQCQTY": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "SQCUnit": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "UnitPrice": {
+          "value": "130.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "130.00",
+              "page": 1
+            }
+          ]
+        },
+        "ProductAmount": {
+          "value": "520.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "520.00",
+              "page": 1
+            }
+          ]
+        },
+        "Per": {
+          "value": "1",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "Rate",
+              "page": 1
+            }
+          ]
+        },
+        "PerUnit": {
+          "value": "PCE",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "PCE",
+              "page": 1
+            }
+          ]
+        },
+        "drawback_schno": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_qty": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_rate": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_unit": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "dbk_desc": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "ROSLRate": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "ROSLCapValue": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "CountryDestination": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "FTACode": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "StateOrigin": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "DistrictOrigin": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Taxable_Value": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "IGST_Rate": {
+          "value": "0.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "0.00 %",
+              "page": 1
+            }
+          ]
+        },
+        "IGST_Amount": {
+          "value": "0.00",
+          "status": "sourced",
+          "evidence": [
+            {
+              "file": "INV- 1112370.txt",
+              "raw": "0.00",
+              "page": 1
+            }
+          ]
+        },
+        "GSTCCessAmount": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RODTEP": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "RoDTEPQty": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Material": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "NetWeight": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "GrossWeight": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "Cartons": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "PackingReference": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "ConversionFactor": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        },
+        "AmountRounding": {
+          "value": null,
+          "status": "unknown",
+          "evidence": []
+        }
+      }
+    }
+  ]
+}

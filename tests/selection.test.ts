@@ -65,3 +65,15 @@ test('malformed latest dates and ambiguous names block selection', () => {
     ),
   ).toBe(true);
 });
+
+test('respects explicitly preferred job number when available in eligible pool', () => {
+  const r: any = selectSource(
+    [
+      c('VIDE-EXP-2627-9', '01/07/2026', 'BUYER B'),
+      c('VIDE-EXP-2627-10', '01/08/2026', 'BUYER C'),
+    ],
+    shipment,
+    'VIDE-EXP-2627-9',
+  );
+  expect(r.source.jobNo).toBe('VIDE-EXP-2627-9');
+});

@@ -10,6 +10,7 @@ import { normalizeName } from './identity';
 export function selectSource(
   candidates: Candidate[],
   s: Shipment,
+  preferredJobNo?: string,
 ): Selection | Issue[] {
   const name = s.fields['general.exporter']?.value ?? '',
     iec = s.fields['general.iec']?.value,
@@ -52,6 +53,18 @@ export function selectSource(
         'Candidate date or sequence cannot be ordered reliably',
       ),
     ];
+  }
+  if (preferredJobNo) {
+    const match = pool.find((c) => c.jobNo === preferredJobNo);
+    if (match) {
+      return {
+        source: match,
+        reason:
+          normalizeName(match.consigneeName) === normalizeName(consignee)
+            ? 'same_consignee'
+            : 'exporter_fallback',
+      };
+    }
   }
   const same = pool.filter(
     (c) => normalizeName(c.consigneeName) === normalizeName(consignee),
