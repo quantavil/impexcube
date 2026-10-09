@@ -63,6 +63,23 @@ export async function uploadProductExcel(
       throw new Error(`Product Excel read failed: ${readMsg}`);
     }
 
+    const gridValText = await s.page
+      .locator('#ContentPlaceHolder1_GridValidation')
+      .allInnerTexts()
+      .catch(() => []);
+    const gridValidationErr = gridValText
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .join(' ');
+    if (
+      gridValidationErr &&
+      /not available|invalid|error|failed/i.test(gridValidationErr)
+    ) {
+      throw new Error(
+        `Product Excel validation failed: ${gridValidationErr.replace(/\s+/g, ' ')}`,
+      );
+    }
+
     const saveBtn = s.page
       .locator(
         '#ContentPlaceHolder1_btnSave, #ContentPlaceHolder1_btnUpdate, input[value="Save"], input[value="SAVE"], input[value="Submit Excel Data"]',

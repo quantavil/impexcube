@@ -240,6 +240,19 @@ export async function savePatch(
       await assertSession(s, target);
       await journal.transition(record, record.state, 'save ' + key);
       await postback(s, () => s.page.locator('#' + SAVE_IDS[section]).click());
+      const warnings = await s.page
+        .locator(
+          '#ContentPlaceHolder1_lblerrwarning, #ContentPlaceHolder1_lblerror, #ContentPlaceHolder1_lblerrorspan',
+        )
+        .allInnerTexts()
+        .catch(() => []);
+      const warningText = warnings
+        .map((w) => w.trim())
+        .filter(Boolean)
+        .join(' ');
+      if (warningText && /already|duplicate|invalid|fail/i.test(warningText)) {
+        throw new Error(`Site rejected ${section} save: ${warningText}`);
+      }
       // Persisted-value comparisons happen once, after all section saves, in verifyPatch.
       if (!record.savedSections.includes(key)) record.savedSections.push(key);
       await journal.save(record);

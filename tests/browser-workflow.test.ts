@@ -239,3 +239,80 @@ test('existing packing row uses native Update button instead of Add', async () =
     await rm(dir, { recursive: true, force: true });
   }
 }, 15000);
+
+test('savePatch throws immediate error when site returns validation warning', async () => {
+  const browser = await chromium.launch({
+    executablePath: '/usr/bin/chromium',
+    chromiumSandbox: true,
+  });
+  const dir = await mkdtemp(join(tmpdir(), 'impex-save-warn-'));
+  try {
+    const page = await browser.newPage();
+    const target = 'EXP-2627-12';
+    const header =
+      'VISHAL LOGISTICS SOLUTIONS Branch : DELHI Fin.Year :2026-2027';
+
+    function html(job: string, isSave: boolean) {
+      const controls = Object.entries(FIELDS)
+        .filter(([, d]) => d.section === 'general' && d.kind !== 'packing')
+        .map(([key, d]) =>
+          key === 'general.buyerCountry'
+            ? `<select name="${d.id}" id="${d.id}"><option value=""></option></select>`
+            : `<input ${d.kind === 'check' ? 'type="checkbox"' : ''} name="${d.id}" id="${d.id}" value="${key === 'general.consignee' && isSave ? 'NEW' : 'OLD'}">`,
+        )
+        .join('');
+      return `<body>${header}<form method="POST"><input id="ContentPlaceHolder1_txtjno" value="${job}"><span id="ContentPlaceHolder1_lblerrwarning">${isSave ? 'Already Same Invoice No exists!. Please Check. JobNo: EXP-2627-11' : ''}</span>${controls}<button id="ContentPlaceHolder1_tbJobCreation_TabPanel5_btnUpdate" name="action" value="save">Update</button></form></body>`;
+    }
+
+    await page.route(BASE_URL + '**', async (route) => {
+      const data = new URLSearchParams(route.request().postData() ?? '');
+      const isSave = data.get('action') === 'save';
+      await route.fulfill({
+        contentType: 'text/html',
+        body: html(target, isSave),
+      });
+    });
+
+    const session: any = {
+      page,
+      context: { branch: 'DELHI', financialYear: '2026-2027' },
+    };
+    await page.goto(BASE_URL + 'efrmJobDetails.aspx');
+    const patch: any = {
+      issues: [],
+      operations: [
+        {
+          section: 'general',
+          field: 'general.consignee',
+          action: 'replace',
+          value: 'NEW',
+          evidence: [],
+        },
+      ],
+    };
+    const record = runFixture({
+      context: session.context,
+      sourceJobNo: 'EXP-2627-11',
+      targetJobNo: target,
+      patch,
+      sourceSnapshot: {
+        ...runFixture().sourceSnapshot,
+        jobNo: 'EXP-2627-11',
+      },
+    });
+
+    let saveErr: Error | null = null;
+    try {
+      await savePatch(session, target, patch, record, new Journal(dir));
+    } catch (e: any) {
+      saveErr = e;
+    }
+    expect(saveErr).not.toBeNull();
+    expect(saveErr?.message).toContain(
+      'Site rejected general save: Already Same Invoice No exists!. Please Check. JobNo: EXP-2627-11',
+    );
+  } finally {
+    await browser.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+}, 15000);

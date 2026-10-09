@@ -786,7 +786,9 @@ export function reconcileProductsData(
     reconciled.push({
       InvoiceSNo: '1',
       ItemSNo: String(idx + 1),
-      InvoiceNo: invoiceData.invoice_no,
+      InvoiceNo: invoiceData.invoice_no
+        ? invoiceData.invoice_no.replace(/\s/g, '')
+        : '',
       Description: desc,
       EndUse: rules.end_use,
       HAWBL_NO: null,
@@ -1070,10 +1072,12 @@ export function buildProductsFromExtracted(
 ): ReconciledProducts {
   const comp = { ...config.compliance, ...(rules || {}) };
   const instructions = manifestData?.instructions || {};
-  const invNo =
+  const rawInvNo =
+    instructions['invoice[0].invoice.number'] ||
     extractedData.invoices?.[0]?.['invoice.number']?.value ||
     extractedData.invoices?.[0]?.['number']?.value ||
     '';
+  const invNo = String(rawInvNo).replace(/\s/g, '');
 
   const items: any[] = (extractedData.products || []).map(
     (p: any, idx: number) => {

@@ -190,3 +190,64 @@ test('uploadProductExcel throws error when browser dialog reports failure', asyn
     await rm(dir, { recursive: true, force: true });
   }
 }, 15000);
+
+test('uploadProductExcel throws error when GridValidation reports invalid invoice', async () => {
+  const browser = await chromium.launch({
+    executablePath: '/usr/bin/chromium',
+    chromiumSandbox: true,
+  });
+  const dir = await mkdtemp(join(tmpdir(), 'impex-upload-val-'));
+  const dummyExcel = join(dir, 'test.xlsx');
+  await writeFile(dummyExcel, 'dummy excel content');
+
+  try {
+    const page = await browser.newPage();
+    const target = 'EXP-2627-563';
+    let uploadedJob = '';
+
+    await page.route(BASE_URL + '**', async (route) => {
+      const req = route.request();
+      const data = new URLSearchParams(req.postData() ?? '');
+      let readClicked = false;
+      if (req.method() === 'POST') {
+        if (data.has('btnsubmit')) uploadedJob = data.get('txtJobNo') ?? '';
+        if (data.has('btnRead')) readClicked = true;
+      }
+      const body = `
+    <html><body>
+    VISHAL LOGISTICS SOLUTIONS Branch : MORADABAD Fin.Year :2026-2027
+    <form method="POST">
+     <input id="ContentPlaceHolder1_txtJobNo" name="txtJobNo" value="${uploadedJob || target}">
+     <input type="submit" id="ContentPlaceHolder1_btnsubmit" name="btnsubmit" value="Go">
+     <input type="file" id="ContentPlaceHolder1_FileUpload1" name="FileUpload1">
+     <input type="submit" id="ContentPlaceHolder1_btnRead" name="btnRead" value="Read Excel">
+     ${
+       readClicked
+         ? '<table id="ContentPlaceHolder1_GridValidation"><tr><td>JobNo</td><td>InvoiceSNo</td><td>Is_Status</td></tr><tr><td>EXP-2627-563</td><td>1</td><td>This InvoiceNo : GGI 138/26-27 is not Available in InvoiceDetails please check!</td></tr></table>'
+         : ''
+     }
+    </form>
+    </body></html>
+   `;
+      await route.fulfill({ body, contentType: 'text/html' });
+    });
+
+    const session: any = {
+      page,
+      context: { branch: 'MORADABAD', financialYear: '2026-2027' },
+    };
+    let uploadErr: Error | null = null;
+    try {
+      await uploadProductExcel(session, target, dummyExcel);
+    } catch (e: any) {
+      uploadErr = e;
+    }
+    expect(uploadErr).not.toBeNull();
+    expect(uploadErr?.message).toContain(
+      'Product Excel validation failed: JobNo InvoiceSNo Is_Status EXP-2627-563 1 This InvoiceNo : GGI 138/26-27 is not Available in InvoiceDetails please check!',
+    );
+  } finally {
+    await browser.close();
+    await rm(dir, { recursive: true, force: true });
+  }
+}, 15000);
