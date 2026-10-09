@@ -85,12 +85,17 @@ export async function executeRun(
       record,
       record.issues.some((i) => i.blocking) ? 'needs_input' : 'verified',
     );
-  } catch (_error) {
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error(
+      'Operation failed:',
+      error instanceof Error ? error.stack : error,
+    );
     record.issues = [
       ...record.issues,
       issue(
         'operation_failed',
-        'Site operation failed or response was uncertain. Inspect the target and resume.',
+        `Site operation failed: ${msg}. Inspect the target and resume.`,
       ),
     ];
     await journal.transition(

@@ -46,7 +46,10 @@ export async function canonicalText(
   const transform = await page
     .locator('#' + id)
     .evaluate((e) => getComputedStyle(e).textTransform);
-  const text = transform === 'uppercase' ? value.toUpperCase() : value;
+  const text =
+    transform === 'uppercase' || id === FIELDS['shipment.marks']!.id
+      ? value.toUpperCase()
+      : value;
   return id === FIELDS['invoice.number']!.id ? text.replace(/\s/g, '') : text;
 }
 export async function writeControl(
