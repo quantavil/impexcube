@@ -1093,6 +1093,57 @@ export function buildProductsFromExtracted(
         (Number(qty) * Number(unitPrice)).toFixed(2),
       );
 
+      const ritc = getVal('RITCCode', comp.ritc_code);
+      const isChapter94 = String(ritc).startsWith('94');
+
+      let scheme = getVal('ApplicableExpSchemes', comp.scheme);
+      if (typeof scheme === 'string' && scheme.includes('-')) {
+        scheme = scheme.split('-')[0].trim();
+      }
+
+      const drawbackSch = getVal(
+        'drawback_schno',
+        isChapter94 ? comp.drawback_schno : null,
+      );
+      const dbkRate = drawbackSch ? getVal('dbk_rate', comp.dbk_rate) : null;
+      const dbkQty = drawbackSch ? getVal('dbk_qty', qty) : null;
+      const dbkUnit = drawbackSch ? getVal('dbk_unit', comp.dbk_unit) : null;
+
+      const destCountry = getVal(
+        'CountryDestination',
+        instructions['shipment.destinationCountry'] || comp.country_destination,
+      );
+      const ftaCode = getVal(
+        'FTACode',
+        comp.fta_code && destCountry === comp.country_destination
+          ? comp.fta_code
+          : null,
+      );
+
+      const totalShipmentPackages =
+        extractedData.fields?.['shipment.packages']?.value ||
+        extractedData.shipment?.fields?.['shipment.packages']?.value ||
+        instructions['shipment.packages'] ||
+        null;
+      const totalPkg = getVal(
+        'Total_Package',
+        (extractedData.products?.length ?? 0) <= 1
+          ? totalShipmentPackages
+          : null,
+      );
+
+      const exRate = Number(
+        extractedData.invoices?.[0]?.['invoice.exchangeRate']?.value || 0,
+      );
+      const calculatedTaxable =
+        exRate > 0 ? (Number(amt) * exRate).toFixed(2) : amt;
+      const taxableVal = getVal(
+        'Taxable_Value',
+        comp.taxable_value !== '0' && comp.taxable_value !== undefined
+          ? comp.taxable_value
+          : calculatedTaxable,
+      );
+
       return {
         InvoiceSNo: String((p.invoiceIndex ?? 0) + 1),
         ItemSNo: String(idx + 1),
@@ -1100,12 +1151,12 @@ export function buildProductsFromExtracted(
         Description: getVal('Description', ''),
         EndUse: getVal('EndUse', comp.end_use),
         HAWBL_NO: getVal('HAWBL_NO', null),
-        Total_Package: getVal('Total_Package', null),
+        Total_Package: totalPkg,
         Accessories: getVal('Accessories', null),
         RewardItem: getVal('RewardItem', comp.reward_item),
         IGST_PaymentStatus: getVal('IGST_PaymentStatus', comp.payment_status),
-        RITCCode: getVal('RITCCode', comp.ritc_code),
-        ApplicableExpSchemes: getVal('ApplicableExpSchemes', comp.scheme),
+        RITCCode: ritc,
+        ApplicableExpSchemes: scheme,
         Quantity: qty,
         QuantityUnit: getVal('QuantityUnit', comp.quantity_unit),
         SQCQTY: getVal('SQCQTY', qty),
@@ -1114,25 +1165,21 @@ export function buildProductsFromExtracted(
         ProductAmount: amt,
         Per: getVal('Per', comp.per),
         PerUnit: getVal('PerUnit', getVal('QuantityUnit', comp.per_unit)),
-        drawback_schno: getVal('drawback_schno', comp.drawback_schno),
-        dbk_qty: getVal('dbk_qty', qty),
-        dbk_rate: getVal('dbk_rate', comp.dbk_rate),
-        dbk_unit: getVal('dbk_unit', comp.dbk_unit),
+        drawback_schno: drawbackSch,
+        dbk_qty: dbkQty,
+        dbk_rate: dbkRate,
+        dbk_unit: dbkUnit,
         dbk_desc: getVal('dbk_desc', null),
         ROSLRate: getVal('ROSLRate', null),
         ROSLCapValue: getVal('ROSLCapValue', null),
-        CountryDestination: getVal(
-          'CountryDestination',
-          instructions['shipment.destinationCountry'] ||
-            comp.country_destination,
-        ),
-        FTACode: getVal('FTACode', comp.fta_code),
+        CountryDestination: destCountry,
+        FTACode: ftaCode,
         StateOrigin: getVal(
           'StateOrigin',
           instructions['general.stateOrigin'] || comp.state_origin,
         ),
         DistrictOrigin: getVal('DistrictOrigin', comp.district_origin),
-        Taxable_Value: getVal('Taxable_Value', comp.taxable_value),
+        Taxable_Value: taxableVal,
         IGST_Rate: getVal('IGST_Rate', comp.igst_rate),
         IGST_Amount: getVal('IGST_Amount', comp.igst_amount),
         GSTCCessAmount: getVal('GSTCCessAmount', null),

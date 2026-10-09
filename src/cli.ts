@@ -331,18 +331,24 @@ async function main() {
             console.log(
               `Uploading product Excel (${excelPath}) to target ${r.targetJobNo}...`,
             );
-            const uploadRes = await uploadProductExcel(
-              s,
-              r.targetJobNo!,
-              excelPath,
-            );
-            r.productPreservationConfirmedForTarget =
-              r.targetJobNo ?? undefined;
-            await journal.transition(
-              r,
-              r.state,
-              `Uploaded product Excel: ${uploadRes.message ?? 'ok'}`,
-            );
+            try {
+              const uploadRes = await uploadProductExcel(
+                s,
+                r.targetJobNo!,
+                excelPath,
+              );
+              r.productPreservationConfirmedForTarget =
+                r.targetJobNo ?? undefined;
+              await journal.transition(
+                r,
+                r.state,
+                `Uploaded product Excel: ${uploadRes.message ?? 'ok'}`,
+              );
+            } catch (err: any) {
+              console.warn(
+                `Product upload could not be completed automatically: ${err.message}. Products remain manual.`,
+              );
+            }
           }
           await savePatch(s, r.targetJobNo!, r.patch, r, journal);
         },

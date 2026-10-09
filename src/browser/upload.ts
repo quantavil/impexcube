@@ -68,10 +68,13 @@ export async function uploadProductExcel(
         '#ContentPlaceHolder1_btnSave, #ContentPlaceHolder1_btnUpdate, input[value="Save"], input[value="SAVE"], input[value="Submit Excel Data"]',
       )
       .first();
-    if ((await saveBtn.count()) > 0 && (await saveBtn.isVisible())) {
-      await postback(s, () => saveBtn.click());
-      await assertSession(s, targetJobNo);
+    if ((await saveBtn.count()) === 0 || !(await saveBtn.isVisible())) {
+      throw new Error(
+        'Product Excel save button (#ContentPlaceHolder1_btnSave) not found or not visible after reading file',
+      );
     }
+    await postback(s, () => saveBtn.click());
+    await assertSession(s, targetJobNo);
 
     const saveDialogErr = dialogMessages.find((m) =>
       /error|failed|failure|invalid|exception|not saved/i.test(m),
