@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import JSZip from 'jszip';
+import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import * as XLSX from 'xlsx';
 import { loadConfig } from '../domain/config';
 import type { ReconciledProducts } from '../domain/model';
@@ -915,9 +915,13 @@ export async function writeProductExcelTemplate(
   outputPath: string,
 ): Promise<{ status: string; output: string; items: number }> {
   const templateData = await readFile(templatePath);
-  const zip = await JSZip.loadAsync(templateData);
+  const unzipped = unzipSync(new Uint8Array(templateData));
 
-  const sstXml = await zip.file('xl/sharedStrings.xml')!.async('text');
+  const sstXmlBytes = unzipped['xl/sharedStrings.xml'];
+  if (!sstXmlBytes) {
+    throw new Error('xl/sharedStrings.xml not found in template');
+  }
+  const sstXml = strFromU8(sstXmlBytes);
   const sharedStrings: string[] = [];
   const stringToIdx = new Map<string, number>();
 
@@ -1064,7 +1068,11 @@ export async function writeProductExcelTemplate(
     rowsXml += '</row>';
   }
 
-  let sheet1Xml = await zip.file('xl/worksheets/sheet1.xml')!.async('text');
+  const sheet1XmlBytes = unzipped['xl/worksheets/sheet1.xml'];
+  if (!sheet1XmlBytes) {
+    throw new Error('xl/worksheets/sheet1.xml not found in template');
+  }
+  let sheet1Xml = strFromU8(sheet1XmlBytes);
   sheet1Xml = sheet1Xml.replace(
     /<dimension ref="[^"]*"\/>/,
     `<dimension ref="A1:AK${rowsData.length + 1}"/>`,
@@ -1099,14 +1107,11 @@ export async function writeProductExcelTemplate(
   }
   newCcXml += '</calcChain>';
 
-  zip.file('xl/worksheets/sheet1.xml', sheet1Xml);
-  zip.file('xl/sharedStrings.xml', newSstXml);
-  zip.file('xl/calcChain.xml', newCcXml);
+  unzipped['xl/worksheets/sheet1.xml'] = strToU8(sheet1Xml);
+  unzipped['xl/sharedStrings.xml'] = strToU8(newSstXml);
+  unzipped['xl/calcChain.xml'] = strToU8(newCcXml);
 
-  const outBuf = await zip.generateAsync({
-    type: 'nodebuffer',
-    compression: 'DEFLATE',
-  });
+  const outBuf = zipSync(unzipped);
   await writeFile(outputPath, outBuf);
 
   return { status: 'ok', output: outputPath, items: rowsData.length };

@@ -6,7 +6,7 @@ Read README.md for operation.
 
 Use Bun for TypeScript. Install with `bun install`. Keep `bun.lock` synchronized with dependency changes.
 
-Use Zod 4 for runtime validation, `xlsx`/`jszip` for 37-column Excel conversion, `pdf-parse` for PDF text with OCR disabled, and Playwright for website controls. AI interprets the original documents and extracted data into evidence-backed `extracted.json`; the CLI does not provide unattended AI interpretation.
+Use Zod 4 for runtime validation, `xlsx`/`fflate` for 37-column Excel conversion, `@xberg-io/xberg` for PDF and DOCX document extraction with OCR enabled, and Playwright for website controls. AI interprets the original documents and extracted data into evidence-backed `extracted.json`; the CLI does not provide unattended AI interpretation.
 
 - `src/domain`: Zod schemas and validation; derive TypeScript types from schemas.
 - `src/documents`: local extraction and evidence handoff.

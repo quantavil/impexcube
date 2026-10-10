@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises';
-import { basename, extname } from 'node:path';
-import mammoth from 'mammoth';
-import { PDFParse } from 'pdf-parse';
+import { basename, extname, resolve } from 'node:path';
+import { ExtractInputKind, extract } from '@xberg-io/xberg';
 import * as XLSX from 'xlsx';
 import type { DocumentText, Manifest } from '../domain/model';
 import { DocumentSchema } from '../domain/schemas';
@@ -13,22 +12,33 @@ export async function readSingleDocument(
 ): Promise<DocumentText> {
   const filename = basename(path);
   const ext = extname(path).toLowerCase();
-  const fileBytes = await readFile(path);
 
   if (ext === '.pdf') {
-    const parser = new PDFParse({ data: fileBytes });
-    const parsed = await parser.getText();
-    const pages = parsed.pages.map((p: any, i: number) => ({
-      page: p.num || i + 1,
-      text: p.text || '',
-    }));
+    const res = await extract(
+      {
+        kind: ExtractInputKind.Uri,
+        uri: resolve(path),
+      },
+      {
+        ocr: { enabled: true },
+        pages: { extractPages: true },
+      },
+    );
+    const extracted = res.results?.[0];
+    const pages =
+      extracted?.pages && extracted.pages.length > 0
+        ? extracted.pages.map((p) => ({
+            page: p.pageNumber,
+            text: p.content || '',
+          }))
+        : [{ page: 1, text: extracted?.content || '' }];
     const visual = pages
-      .filter((p: any) => !p.text.trim() || p.text.includes('\ufffd'))
-      .map((p: any) => p.page);
+      .filter((p) => !p.text.trim() || p.text.includes('\ufffd'))
+      .map((p) => p.page);
     return DocumentSchema.parse({
       file: filename,
       role,
-      reader: 'pdf-parse',
+      reader: 'xberg',
       pages,
       visualPages: visual,
       needsVisual: visual.length > 0 || pages.length === 0,
@@ -36,6 +46,7 @@ export async function readSingleDocument(
   }
 
   if (ext === '.xlsx' || ext === '.xls') {
+    const fileBytes = await readFile(path);
     const wb = XLSX.read(fileBytes, { type: 'buffer' });
     let markdown = '';
     for (const sheetName of wb.SheetNames) {
@@ -62,6 +73,7 @@ export async function readSingleDocument(
   }
 
   if (ext === '.txt' || ext === '.md') {
+    const fileBytes = await readFile(path);
     const text = fileBytes.toString('utf-8');
     return DocumentSchema.parse({
       file: filename,
@@ -73,10 +85,21 @@ export async function readSingleDocument(
   }
 
   if (ext === '.docx') {
-    const res = (await (mammoth as any).convertToMarkdown({
-      buffer: Buffer.from(fileBytes),
-    })) as { value: string; messages: Array<{ message: string }> };
-    const markdown = res.value.replace(/\\([-.\\_()[\]{}*+?^$])/g, '$1');
+    const res = await extract(
+      {
+        kind: ExtractInputKind.Uri,
+        uri: resolve(path),
+      },
+      {
+        outputFormat: 'markdown',
+        ocr: { enabled: true },
+      },
+    );
+    const extracted = res.results?.[0];
+    const markdown = (extracted?.content || '').replace(
+      /\\([-.\\_()[\]{}*+?^$])/g,
+      '$1',
+    );
     const lines = markdown.split('\n').map((text: string, idx: number) => ({
       line: idx + 1,
       text,
@@ -84,11 +107,11 @@ export async function readSingleDocument(
     return DocumentSchema.parse({
       file: filename,
       role,
-      reader: 'mammoth',
+      reader: 'xberg',
       markdown,
       lines,
       pages: [{ page: 1, text: markdown }],
-      warnings: res.messages.map((m: { message: string }) => m.message),
+      warnings: [],
       needsVisual: lines.length === 0 || !markdown.trim(),
     });
   }

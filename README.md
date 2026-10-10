@@ -197,7 +197,7 @@ Customer documents, journals and reports stay local and are ignored by Git. Repo
 
 ## Document readers
 
-PDFs use pure TypeScript `pdf-parse` with OCR disabled. Excel extraction and 37-column `ProductFormat.xlsx` generation use pure TypeScript (`xlsx` and `jszip`) with 100% template style fidelity. No hosted document/OCR service or external Python runtime is invoked.
+PDFs and DOCX documents use `@xberg-io/xberg` with OCR enabled. Excel extraction and 37-column `ProductFormat.xlsx` generation use pure TypeScript (`xlsx` and `fflate`) with 100% template style fidelity. No hosted document/OCR service or external Python runtime is invoked.
 
 ## Statutory Tariff & Duty Structure Integration
 

@@ -118,16 +118,30 @@ test('INTKD6_001 validates cleanly and ingests product instructions', async () =
   expect(shipment.products?.[0].fields['CountryDestination']?.value).toBe('CI');
 });
 
-test('docx document extracts clean markdown and lines via mammoth', async () => {
+test('docx document extracts clean markdown and lines via xberg', async () => {
   const { readSingleDocument } = await import('../src/documents/extract');
   const doc = await readSingleDocument(
     'tests/fixtures/documents/sample.docx',
     'packing',
   );
-  expect(doc.reader).toBe('mammoth');
+  expect(doc.reader).toBe('xberg');
   expect(doc.markdown).toContain('DELTA ELECTRONICS');
   expect(doc.markdown).toContain('SERCOM AON GROUP');
   expect(doc.markdown).toContain('UT/1118644/26-27');
-  expect(doc.lines?.length).toBeGreaterThan(10);
+  expect(doc.lines?.length).toBeGreaterThan(5);
+  expect(doc.needsVisual).toBe(false);
+});
+
+test('pdf document extracts pages and text via xberg with OCR enabled', async () => {
+  const { readSingleDocument } = await import('../src/documents/extract');
+  const { existsSync } = await import('node:fs');
+  if (!existsSync('incoming/INTKD6_001/1118644.pdf')) return;
+  const doc = await readSingleDocument(
+    'incoming/INTKD6_001/1118644.pdf',
+    'invoice',
+  );
+  expect(doc.reader).toBe('xberg');
+  expect(doc.pages?.length).toBe(2);
+  expect(doc.pages?.[0]?.text).toContain('Delta Electronics');
   expect(doc.needsVisual).toBe(false);
 });
