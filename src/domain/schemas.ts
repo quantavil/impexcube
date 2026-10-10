@@ -172,7 +172,7 @@ export const ProductItemSchema = z.strictObject({
   FTACode: z.string().nullable().optional(),
   StateOrigin: z.string(),
   DistrictOrigin: z.string(),
-  Taxable_Value: z.string(),
+  Taxable_Value: z.string().nullable().optional(),
   IGST_Rate: z.string(),
   IGST_Amount: z.string(),
   GSTCCessAmount: z.string().nullable().optional(),

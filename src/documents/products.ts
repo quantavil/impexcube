@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx';
 import { loadConfig } from '../domain/config';
 import type { ReconciledProducts } from '../domain/model';
 import { ReconciledProductsSchema } from '../domain/schemas';
+import { fetchDutyExportStructure } from './duty';
 
 export const COLUMN_NAMES = [
   'InvoiceSNo',
@@ -574,18 +575,33 @@ export function normalizeMaterialName(rawName: string): string {
 }
 
 export function standardizeProductDescription(
-  materials: { name: string; total_net?: number }[] | undefined,
+  materials:
+    | {
+        name: string;
+        total_net?: number;
+        weight?: number;
+        percentage?: number;
+      }[]
+    | undefined,
   origDesc: string,
   template?: string,
   isArtware = true,
+  isFurniture?: boolean,
 ): string {
   let cleanOrig = origDesc.trim().toUpperCase();
   if (!isArtware) return cleanOrig;
 
+  const isFurn =
+    isFurniture ??
+    /TABLE|CHAIR|STOOL|BENCH|DESK|CABINET|SOFA|BED|SHELF|WARDROBE/i.test(
+      cleanOrig,
+    );
+
   const tpl =
     template ||
-    config.app?.artware_prefix_template ||
-    'OTHER FURNITURE ARTICLES OF {materials} ARTWARE - {description}';
+    (isFurn && config.app?.artware_prefix_template
+      ? config.app.artware_prefix_template
+      : 'OTHER ARTICLES OF {materials} ARTWARE - {description}');
   let existingMats: string | null = null;
 
   const m = cleanOrig.match(
@@ -596,9 +612,11 @@ export function standardizeProductDescription(
     cleanOrig = m[2].trim();
   }
 
-  const sortedMats = [...(materials || [])].sort(
-    (a, b) => (b.total_net || 0) - (a.total_net || 0),
-  );
+  const sortedMats = [...(materials || [])].sort((a, b) => {
+    const valA = a.total_net ?? a.weight ?? a.percentage ?? 0;
+    const valB = b.total_net ?? b.weight ?? b.percentage ?? 0;
+    return valB - valA;
+  });
   const matNames: string[] = [];
   for (const mat of sortedMats) {
     const norm = normalizeMaterialName(mat.name);
@@ -626,7 +644,7 @@ export function standardizeProductDescription(
       .replace('{materials}', matStr)
       .replace('{description}', cleanOrig);
   }
-  return `OTHER FURNITURE ARTICLES OF ${matStr} ARTWARE - ${cleanOrig}`;
+  return `OTHER ARTICLES OF ${matStr} ARTWARE - ${cleanOrig}`;
 }
 
 export function reconcileProductsData(
@@ -1065,11 +1083,11 @@ export async function generateProductExcel(
   return writeProductExcelTemplate(reconciled.items, templatePath, outputPath);
 }
 
-export function buildProductsFromExtracted(
+export async function buildProductsFromExtracted(
   extractedData: any,
   manifestData?: any,
   rules?: any,
-): ReconciledProducts {
+): Promise<ReconciledProducts> {
   const comp = { ...config.compliance, ...(rules || {}) };
   const instructions = manifestData?.instructions || {};
   const rawInvNo =
@@ -1078,6 +1096,27 @@ export function buildProductsFromExtracted(
     extractedData.invoices?.[0]?.['number']?.value ||
     '';
   const invNo = String(rawInvNo).replace(/\s/g, '');
+
+  const dutyCache = new Map<string, any>();
+  for (let idx = 0; idx < (extractedData.products || []).length; idx++) {
+    const p = extractedData.products[idx];
+    const f = p.fields || {};
+    const instKey = `product[${idx}].RITCCode`;
+    const rawRitc =
+      instructions[instKey] ||
+      (f.RITCCode?.value !== null && f.RITCCode?.value !== undefined
+        ? String(f.RITCCode.value)
+        : comp.ritc_code);
+    const cleanRitc = String(rawRitc || '').trim();
+    if (cleanRitc && !dutyCache.has(cleanRitc)) {
+      try {
+        const info = await fetchDutyExportStructure(cleanRitc);
+        dutyCache.set(cleanRitc, info);
+      } catch {
+        dutyCache.set(cleanRitc, null);
+      }
+    }
+  }
 
   const items: any[] = (extractedData.products || []).map(
     (p: any, idx: number) => {
@@ -1098,20 +1137,116 @@ export function buildProductsFromExtracted(
       );
 
       const ritc = getVal('RITCCode', comp.ritc_code);
-      const isChapter94 = String(ritc).startsWith('94');
+      const cleanRitc = String(ritc || '').trim();
+      const dutyInfo = dutyCache.get(cleanRitc) || null;
+      const isChapter94 = cleanRitc.startsWith('94');
 
-      let scheme = getVal('ApplicableExpSchemes', comp.scheme);
-      if (typeof scheme === 'string' && scheme.includes('-')) {
-        scheme = scheme.split('-')[0].trim();
+      const origDesc = getVal('Description', '');
+      let materials: { name: string; weight?: number; percentage?: number }[] =
+        [];
+      if (Array.isArray(p.materials)) {
+        materials = p.materials;
+      } else if (Array.isArray(p._materials)) {
+        materials = p._materials;
+      } else if (Array.isArray(f.materials?.value)) {
+        materials = f.materials.value;
+      } else if (typeof f.Material?.value === 'string') {
+        const matMatches = Array.from(
+          f.Material.value.matchAll(
+            /(?:Net\s+Wt\s+)?([A-Za-z]+)\s*[:\s]\s*(\d+(?:\.\d+)?)/gi,
+          ),
+        );
+        materials = matMatches.map((m: any) => ({
+          name: m[1].toUpperCase(),
+          weight: parseFloat(m[2]),
+        }));
       }
+
+      let isArtware = rules?.is_artware;
+      if (isArtware === undefined) {
+        if (
+          rules?.goods_type === 'industrial' ||
+          comp.goods_type === 'industrial'
+        ) {
+          isArtware = false;
+        } else if (
+          /^(?:84|85|87|90)/.test(cleanRitc) &&
+          materials.length === 0 &&
+          !/ARTWARE|HANDICRAFT/i.test(origDesc)
+        ) {
+          isArtware = false;
+        } else {
+          isArtware = true;
+        }
+      }
+
+      const standardizedDesc = standardizeProductDescription(
+        materials,
+        origDesc,
+        rules?.artware_prefix_template,
+        isArtware,
+      );
+
+      const resolvedSqcUnit = getVal(
+        'SQCUnit',
+        dutyInfo?.standardUqc || comp.sqc_unit || 'NOS',
+      );
+
+      const rawNetWeight =
+        f.NetWeight?.value !== null && f.NetWeight?.value !== undefined
+          ? f.NetWeight.value
+          : p.net_weight !== undefined
+            ? p.net_weight
+            : p._net_weight !== undefined
+              ? p._net_weight
+              : null;
+      const netWeight =
+        rawNetWeight !== null && rawNetWeight !== undefined
+          ? String(rawNetWeight).trim()
+          : null;
+
+      let defaultSqcQty = qty;
+      if (resolvedSqcUnit === 'KGS' && netWeight) {
+        defaultSqcQty = netWeight;
+      }
+      const resolvedSqcQty = getVal('SQCQTY', defaultSqcQty);
+
+      const rodtepVal = getVal(
+        'RODTEP',
+        dutyInfo?.rodtepRate ? 'Y' : comp.rodtep || 'Y',
+      );
+      let defaultRodtepQty = qty;
+      if (
+        (dutyInfo?.rodtepUqc === 'KGS' || resolvedSqcUnit === 'KGS') &&
+        netWeight
+      ) {
+        defaultRodtepQty = netWeight;
+      }
+      const resolvedRodtepQty = getVal('RoDTEPQty', defaultRodtepQty);
 
       const drawbackSch = getVal(
         'drawback_schno',
-        isChapter94 ? comp.drawback_schno : null,
+        dutyInfo?.dbkScheduleNo || (isChapter94 ? comp.drawback_schno : null),
       );
-      const dbkRate = drawbackSch ? getVal('dbk_rate', comp.dbk_rate) : null;
+      const dbkRate = drawbackSch
+        ? getVal('dbk_rate', dutyInfo?.dbkRate || comp.dbk_rate)
+        : null;
       const dbkQty = drawbackSch ? getVal('dbk_qty', qty) : null;
-      const dbkUnit = drawbackSch ? getVal('dbk_unit', comp.dbk_unit) : null;
+      const dbkUnit = drawbackSch
+        ? getVal('dbk_unit', dutyInfo?.dbkUnit || comp.dbk_unit || 'PCS')
+        : null;
+      const dbkDesc = drawbackSch
+        ? getVal('dbk_desc', dutyInfo?.dbkDesc || null)
+        : null;
+
+      let defaultScheme = comp.scheme;
+      if (drawbackSch) {
+        defaultScheme = '19';
+      }
+      let scheme = getVal('ApplicableExpSchemes', defaultScheme);
+      if (typeof scheme === 'string' && scheme.includes('-')) {
+        scheme = scheme.split('-')[0].trim();
+      }
 
       const destCountry = getVal(
         'CountryDestination',
@@ -1136,23 +1271,16 @@ export function buildProductsFromExtracted(
           : null,
       );
 
-      const exRate = Number(
-        extractedData.invoices?.[0]?.['invoice.exchangeRate']?.value || 0,
-      );
-      const calculatedTaxable =
-        exRate > 0 ? (Number(amt) * exRate).toFixed(2) : amt;
       const taxableVal = getVal(
         'Taxable_Value',
-        comp.taxable_value !== '0' && comp.taxable_value !== undefined
-          ? comp.taxable_value
-          : calculatedTaxable,
+        rules?.taxable_value !== undefined ? rules.taxable_value : null,
       );
 
       return {
         InvoiceSNo: String((p.invoiceIndex ?? 0) + 1),
         ItemSNo: String(idx + 1),
         InvoiceNo: invNo,
-        Description: getVal('Description', ''),
+        Description: standardizedDesc,
         EndUse: getVal('EndUse', comp.end_use),
         HAWBL_NO: getVal('HAWBL_NO', null),
         Total_Package: totalPkg,
@@ -1163,8 +1291,8 @@ export function buildProductsFromExtracted(
         ApplicableExpSchemes: scheme,
         Quantity: qty,
         QuantityUnit: getVal('QuantityUnit', comp.quantity_unit),
-        SQCQTY: getVal('SQCQTY', qty),
-        SQCUnit: getVal('SQCUnit', comp.sqc_unit),
+        SQCQTY: resolvedSqcQty,
+        SQCUnit: resolvedSqcUnit,
         UnitPrice: unitPrice,
         ProductAmount: amt,
         Per: getVal('Per', comp.per),
@@ -1173,7 +1301,7 @@ export function buildProductsFromExtracted(
         dbk_qty: dbkQty,
         dbk_rate: dbkRate,
         dbk_unit: dbkUnit,
-        dbk_desc: getVal('dbk_desc', null),
+        dbk_desc: dbkDesc,
         ROSLRate: getVal('ROSLRate', null),
         ROSLCapValue: getVal('ROSLCapValue', null),
         CountryDestination: destCountry,
@@ -1187,8 +1315,8 @@ export function buildProductsFromExtracted(
         IGST_Rate: getVal('IGST_Rate', comp.igst_rate),
         IGST_Amount: getVal('IGST_Amount', comp.igst_amount),
         GSTCCessAmount: getVal('GSTCCessAmount', null),
-        RODTEP: getVal('RODTEP', comp.rodtep),
-        RoDTEPQty: getVal('RoDTEPQty', qty),
+        RODTEP: rodtepVal,
+        RoDTEPQty: resolvedRodtepQty,
       };
     },
   );
@@ -1288,7 +1416,7 @@ export async function processProductsFolder(
               manData = JSON.parse(await readFile(manPath, 'utf-8'));
             } catch {}
           }
-          const reconciled = buildProductsFromExtracted(
+          const reconciled = await buildProductsFromExtracted(
             extData,
             manData,
             rules,

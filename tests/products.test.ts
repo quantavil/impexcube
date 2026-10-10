@@ -2,10 +2,13 @@ import { expect, test } from 'bun:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import * as XLSX from 'xlsx';
 import {
+  buildProductsFromExtracted,
   generateProductExcel,
   processProductsFolder,
   reconcileProducts,
+  standardizeProductDescription,
 } from '../src/documents/products';
 
 const fixturesDir = resolve('tests/fixtures/products');
@@ -237,6 +240,109 @@ test('processProductsFolder generates 37-column excel from extracted.json when n
     expect(result.items[0].CountryDestination).toBe('CI');
     expect(result.items[0].StateOrigin).toBe('05');
     expect(await Bun.file(outPath).exists()).toBe(true);
+  } finally {
+    await rm(tmpDir, { recursive: true, force: true });
+  }
+});
+
+test('standardizeProductDescription formats Artware, Furniture, and Industrial descriptions correctly', () => {
+  // Artware mirror with ranked materials high to low
+  const artwareDesc = standardizeProductDescription(
+    [
+      { name: 'ALUMINIUM', weight: 5.8 },
+      { name: 'GLASS', weight: 4.8 },
+      { name: 'MDF', weight: 1.0 },
+    ],
+    'CAST ALUMINIUM ROUND WALL MIRROR W/ CLEAR GLASS W/ TEXTURE FRAME',
+  );
+  expect(artwareDesc).toBe(
+    'OTHER ARTICLES OF ALUMINIUM / GLASS / MDF ARTWARE - CAST ALUMINIUM ROUND WALL MIRROR W/ CLEAR GLASS W/ TEXTURE FRAME',
+  );
+
+  // Furniture artware table using config template
+  const furnitureDesc = standardizeProductDescription(
+    [{ name: 'MANGO WOOD', weight: 10.0 }],
+    'COFFEE TABLE SMALL',
+  );
+  expect(furnitureDesc).toBe(
+    'OTHER FURNITURE ARTICLES OF MANGO WOOD ARTWARE - COFFEE TABLE SMALL',
+  );
+
+  // Industrial item retaining raw commercial uppercase without prefix
+  const industrialDesc = standardizeProductDescription(
+    [],
+    'DIPPRA7TYI-002-TPS PP ORION T DPR4K',
+    undefined,
+    false,
+  );
+  expect(industrialDesc).toBe('DIPPRA7TYI-002-TPS PP ORION T DPR4K');
+});
+
+test('buildProductsFromExtracted leaves Taxable_Value blank by default and resolves SQCUnit/SQCQTY based on duty', async () => {
+  const dummyExtracted = {
+    invoices: [{ 'invoice.number': { value: 'INV-100' } }],
+    products: [
+      {
+        itemId: '1',
+        fields: {
+          Description: {
+            value:
+              'OTHER ARTICLES OF ALUMINIUM / GLASS / MDF ARTWARE - CAST ALUMINIUM ROUND WALL MIRROR W/ CLEAR GLASS W/ TEXTURE FRAME',
+          },
+          Quantity: { value: '44' },
+          QuantityUnit: { value: 'PCS' },
+          UnitPrice: { value: '52.50' },
+          ProductAmount: { value: '2310.00' },
+          RITCCode: { value: '70099200' },
+          NetWeight: { value: '510.400' },
+        },
+      },
+    ],
+  };
+
+  const result = await buildProductsFromExtracted(dummyExtracted);
+  expect(result.total_items).toBe(1);
+  const item1 = result.items[0];
+  expect(item1.Description).toBe(
+    'OTHER ARTICLES OF ALUMINIUM / GLASS / MDF ARTWARE - CAST ALUMINIUM ROUND WALL MIRROR W/ CLEAR GLASS W/ TEXTURE FRAME',
+  );
+  expect(item1.Taxable_Value).toBeNull();
+  expect(item1.SQCUnit).toBe('KGS');
+  expect(item1.SQCQTY).toBe('510.400');
+  expect(item1.RoDTEPQty).toBe('510.400');
+  expect(item1.drawback_schno).toBe('700999B');
+  expect(item1.dbk_rate).toBe('1.2');
+  expect(item1.ApplicableExpSchemes).toBe('19');
+});
+
+test('processProductsFolder for INMBD6_001 generates 37-column Excel with blank Taxable_Value and KGS SQC', async () => {
+  const tmpDir = await mkdtemp(join(tmpdir(), 'inmbd-test-'));
+  const outPath = join(tmpDir, 'ProductFormat_generated.xlsx');
+  try {
+    const result = await processProductsFolder('incoming/INMBD6_001', outPath);
+    expect(result.total_items).toBe(7);
+    expect(result.total_quantity).toBe(308);
+    expect(result.total_amount).toBe(12227.6);
+
+    const wb = XLSX.readFile(outPath);
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+
+    // Item 1 verification
+    expect(sheet['D2']?.v).toBe(
+      'OTHER ARTICLES OF ALUMINIUM / GLASS / MDF ARTWARE - CAST ALUMINIUM ROUND WALL MIRROR W/ CLEAR GLASS W/ TEXTURE FRAME',
+    );
+    expect(sheet['M2']?.v).toBe(44);
+    expect(sheet['O2']?.v).toBe(510.4);
+    expect(sheet['P2']?.v).toBe('KGS');
+    expect(sheet['AF2']).toBeUndefined(); // Blank Taxable_Value cell
+
+    // Item 4 verification
+    expect(sheet['D5']?.v).toBe(
+      'OTHER ARTICLES OF GLASS / ALUMINIUM / MDF ARTWARE - CAST ALUMINIUM ORGANIC WALL MIRROR',
+    );
+    expect(sheet['O5']?.v).toBe(332.64);
+    expect(sheet['P5']?.v).toBe('KGS');
+    expect(sheet['AF5']).toBeUndefined(); // Blank Taxable_Value cell
   } finally {
     await rm(tmpDir, { recursive: true, force: true });
   }
