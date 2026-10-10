@@ -6,7 +6,11 @@ import * as XLSX from 'xlsx';
 import { loadConfig } from '../domain/config';
 import type { ReconciledProducts } from '../domain/model';
 import { ReconciledProductsSchema } from '../domain/schemas';
-import { fetchDutyExportStructure } from './duty';
+import {
+  type DutyExportInfo,
+  fetchDutyExportStructure,
+  resolveBestDbk,
+} from './duty';
 
 export const COLUMN_NAMES = [
   'InvoiceSNo',
@@ -651,6 +655,7 @@ export function reconcileProductsData(
   invoiceData: ReturnType<typeof extractCommercialInvoice>,
   packingData: ReturnType<typeof extractPackingList>,
   complianceRules?: any,
+  dutyMap?: Map<string, DutyExportInfo | null>,
 ) {
   const rules = { ...DEFAULT_COMPLIANCE, ...(complianceRules || {}) };
   const invItems = invoiceData.items;
@@ -760,7 +765,7 @@ export function reconcileProductsData(
     let sqcQtyVal = qtyStr;
     let rodtepQtyVal = qtyStr;
     let dbkSchVal = rules.drawback_schno;
-    let dbkRateVal = String(rules.dbk_rate);
+    let dbkRateVal: string | null = String(rules.dbk_rate);
     let dbkUnitVal = rules.dbk_unit;
     let dbkDescVal: string | null = null;
     let roslRateVal: string | null = null;
@@ -799,6 +804,26 @@ export function reconcileProductsData(
       dbkDescVal = tRule.dbk_desc || 'Others';
       roslRateVal = tRule.rosl_rate || null;
       roslCapVal = tRule.rosl_cap_value || null;
+    } else if (dutyMap?.get(hsn) && rules.ritc_code !== hsn) {
+      const dInfo = dutyMap.get(hsn)!;
+      ritcVal = hsn;
+      sqcUnitVal = dInfo.standardUqc || rules.sqc_unit || 'NOS';
+      if (sqcUnitVal === 'KGS') {
+        const totNet = pkgItem.total_net_weight || 0;
+        sqcQtyVal =
+          totNet > 0 ? String(Math.round(totNet * 100) / 100) : qtyStr;
+      }
+      rodtepVal = dInfo.rodtepRate ? 'Yes' : rules.rodtep || 'Yes';
+      rodtepQtyVal =
+        dInfo.rodtepUqc === 'KGS' || sqcUnitVal === 'KGS' ? sqcQtyVal : qtyStr;
+      const bestDbk = resolveBestDbk(dInfo.dbkEntries, desc);
+      if (bestDbk) {
+        dbkSchVal = bestDbk.ActualDBK_SERNo?.trim() || null;
+        dbkRateVal = bestDbk.ActualDBKRate?.trim() || null;
+        dbkUnitVal = bestDbk.ActualUnit?.trim() || rules.dbk_unit || 'PCS';
+        dbkDescVal = bestDbk.ActualDBK_Desc?.trim() || null;
+        schemeVal = '19';
+      }
     }
 
     reconciled.push({
@@ -866,7 +891,21 @@ export async function reconcileProducts(
   const wb = XLSX.readFile(sourcePath);
   const invData = extractCommercialInvoice(wb.Sheets);
   const pkgData = extractPackingList(wb.Sheets);
-  const reconciled = reconcileProductsData(invData, pkgData, rules);
+
+  const dutyMap = new Map<string, DutyExportInfo | null>();
+  for (const item of invData.items) {
+    const hsn = String(item.hsn || '').trim();
+    if (hsn && !dutyMap.has(hsn)) {
+      try {
+        const info = await fetchDutyExportStructure(hsn);
+        dutyMap.set(hsn, info);
+      } catch {
+        dutyMap.set(hsn, null);
+      }
+    }
+  }
+
+  const reconciled = reconcileProductsData(invData, pkgData, rules, dutyMap);
   return ReconciledProductsSchema.parse(reconciled);
 }
 
@@ -1224,19 +1263,36 @@ export async function buildProductsFromExtracted(
       }
       const resolvedRodtepQty = getVal('RoDTEPQty', defaultRodtepQty);
 
+      const itemDbk = resolveBestDbk(dutyInfo?.dbkEntries, origDesc);
       const drawbackSch = getVal(
         'drawback_schno',
-        dutyInfo?.dbkScheduleNo || (isChapter94 ? comp.drawback_schno : null),
+        itemDbk?.ActualDBK_SERNo?.trim() ||
+          dutyInfo?.dbkScheduleNo ||
+          (isChapter94 ? comp.drawback_schno : null),
       );
       const dbkRate = drawbackSch
-        ? getVal('dbk_rate', dutyInfo?.dbkRate || comp.dbk_rate)
+        ? getVal(
+            'dbk_rate',
+            itemDbk?.ActualDBKRate?.trim() ||
+              dutyInfo?.dbkRate ||
+              comp.dbk_rate,
+          )
         : null;
       const dbkQty = drawbackSch ? getVal('dbk_qty', qty) : null;
       const dbkUnit = drawbackSch
-        ? getVal('dbk_unit', dutyInfo?.dbkUnit || comp.dbk_unit || 'PCS')
+        ? getVal(
+            'dbk_unit',
+            itemDbk?.ActualUnit?.trim() ||
+              dutyInfo?.dbkUnit ||
+              comp.dbk_unit ||
+              'PCS',
+          )
         : null;
       const dbkDesc = drawbackSch
-        ? getVal('dbk_desc', dutyInfo?.dbkDesc || null)
+        ? getVal(
+            'dbk_desc',
+            itemDbk?.ActualDBK_Desc?.trim() || dutyInfo?.dbkDesc || null,
+          )
         : null;
 
       let defaultScheme = comp.scheme;

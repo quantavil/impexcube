@@ -199,6 +199,19 @@ Customer documents, journals and reports stay local and are ignored by Git. Repo
 
 PDFs use pure TypeScript `pdf-parse` with OCR disabled. Excel extraction and 37-column `ProductFormat.xlsx` generation use pure TypeScript (`xlsx` and `jszip`) with 100% template style fidelity. No hosted document/OCR service or external Python runtime is invoked.
 
+## Statutory Tariff & Duty Structure Integration
+
+The product pipeline dynamically queries ImpexCube's live duty structure API (`https://impexcube.in/DutyStructureExport/`) for statutory customs data without writing caches to disk:
+
+- **Live Endpoints**: Calls `/FillDescription` for `StandardUQC` and CCR compliance circulars, `/GetDetails` (`Mode: "RODEP"`) for RoDTEP rates/UQC, and `/FillDBK` (`Mode: "DBK"`) for drawback schedule numbers and rates.
+- **Dynamic SQC & RoDTEP UQC (KGS vs NOS)**: Resolves unit requirements directly from the live tariff. For weight-based items (`KGS`, such as framed mirrors under `70099200`), `SQCQTY` and `RoDTEPQty` automatically pull item net weights from the packing list and write raw numbers into Excel cells `O` and `AK`. For piece-based items (`NOS` / `PCS`, such as electronics under `85044029`), piece counts and standard formula references are used.
+- **Intelligent Drawback Matching**: Inspects all DBK schedule options for the RITC. Specific qualifiers in `ActualDBK_Desc` are matched against the product description; otherwise it selects positive-rate "Others" schedules (e.g. `700999B` at 1.2% for artware mirrors rather than bicycle mirror `700901B`).
+- **Native INR Taxable Value**: Column `AF` (`Taxable_Value`) remains completely empty (`null`) by default in the generated Excel so ImpexCube automatically calculates taxable value in INR from the official exchange rate, avoiding manual override flags.
+- **Description Standardization (Rule 5)**:
+  - **Artwares / Handicrafts**: Prefixes description with constituent materials ranked high-to-low by net weight: `OTHER ARTICLES OF [MAT1] / [MAT2] ARTWARE - [ORIGINAL DESCRIPTION]` (e.g., `OTHER ARTICLES OF ALUMINIUM / GLASS / MDF ARTWARE - ...`).
+  - **Furniture**: Uses `OTHER FURNITURE ARTICLES OF [MAT1] ARTWARE - ...`.
+  - **Industrial Goods**: Keeps the exact commercial description in uppercase without prepending any artware prefix.
+
 ## Runtime validation
 
 Zod 4 validates manifests, shipment/evidence shapes, document-reader output and saved journals. TypeScript types are derived from the same schemas. Identifiers and decimal values remain strings; no numeric coercion is used. Unknown object properties, invalid optional values and corrupt journals are rejected with field paths. Existing field allowlists, evidence matching, business rules and browser readback remain enforced.

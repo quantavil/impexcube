@@ -3,6 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import * as XLSX from 'xlsx';
+import { resolveBestDbk } from '../src/documents/duty';
 import {
   buildProductsFromExtracted,
   generateProductExcel,
@@ -346,4 +347,36 @@ test('processProductsFolder for INMBD6_001 generates 37-column Excel with blank 
   } finally {
     await rm(tmpDir, { recursive: true, force: true });
   }
+});
+
+test('resolveBestDbk intelligently selects DBK entry by keyword, "others", or highest rate', () => {
+  const entries = [
+    {
+      ActualDBK_SERNo: '7009B',
+      ActualDBK_Desc: 'Glass mirrors',
+      ActualDBKRate: '0',
+    },
+    {
+      ActualDBK_SERNo: '700999B',
+      ActualDBK_Desc: 'Others',
+      ActualDBKRate: '1.2',
+    },
+    {
+      ActualDBK_SERNo: '700901B',
+      ActualDBK_Desc: 'Bicycle Mirror',
+      ActualDBKRate: '1.2',
+    },
+  ];
+
+  // Specific keyword match
+  const matchBicycle = resolveBestDbk(entries, 'BICYCLE MIRROR WITH REFLECTOR');
+  expect(matchBicycle?.ActualDBK_SERNo).toBe('700901B');
+
+  // Generic artware mirror falls back to "Others" with rate > 0
+  const matchWall = resolveBestDbk(entries, 'CAST ALUMINIUM ROUND WALL MIRROR');
+  expect(matchWall?.ActualDBK_SERNo).toBe('700999B');
+
+  // Empty entries return null
+  expect(resolveBestDbk([])).toBeNull();
+  expect(resolveBestDbk(undefined)).toBeNull();
 });
