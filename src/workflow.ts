@@ -22,6 +22,7 @@ import {
   ShipmentArtifactSchema,
   SnapshotSchema,
 } from './schemas';
+import { normalizeName } from './values';
 import { previewNewJob } from './website/create';
 import { canonicalizePatch } from './website/fill';
 import {
@@ -207,13 +208,23 @@ export async function prepareRun(
   const { input, shipment, inputHash } =
     loaded ?? (await loadShipment(folder, context, journal));
   const policyHash = policyFingerprint();
-  const old = (await journal.exists(input.runId))
+  let old = (await journal.exists(input.runId))
     ? await journal.load(input.runId)
     : null;
   if (old && old.inputFolder !== input.folder)
     throw new Error(
       'Run identifier already belongs to another shipment folder',
     );
+  if (
+    old &&
+    normalizeName(
+      old.exporterMaster['general.exporter'] ??
+        old.shipment.fields['general.exporter']?.value ??
+        '',
+    ) !== normalizeName(shipment.fields['general.exporter']?.value ?? '')
+  ) {
+    old = null;
+  }
   if (old && old.inputHash === inputHash && old.policyHash === policyHash)
     return old;
   if (

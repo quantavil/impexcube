@@ -68,16 +68,23 @@ export async function canonicalText(
   id: string,
   value: string,
 ): Promise<string> {
-  const transform = await page
-    .locator('#' + id)
-    .evaluate((e) => getComputedStyle(e).textTransform);
-  const text =
-    transform === 'uppercase' || id === FIELDS['shipment.marks']!.id
+  const info = await page.locator('#' + id).evaluate((e) => {
+    const transform = getComputedStyle(e).textTransform;
+    const attr = e.getAttribute('maxlength');
+    const maxLength = attr ? parseInt(attr, 10) : null;
+    return {
+      transform,
+      maxLength: maxLength && maxLength > 0 ? maxLength : null,
+    };
+  });
+  let text =
+    info.transform === 'uppercase' || id === FIELDS['shipment.marks']!.id
       ? value.toUpperCase()
       : value;
-  return id === FIELDS['invoice.number']!.id
-    ? normalizeInvoiceNumber(text)
-    : text;
+  if (id === FIELDS['invoice.number']!.id) text = normalizeInvoiceNumber(text);
+  if (info.maxLength !== null && text.length > info.maxLength)
+    text = text.slice(0, info.maxLength);
+  return text;
 }
 export async function writeControl(
   s: BrowserSession,

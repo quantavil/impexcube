@@ -29,19 +29,37 @@ export async function previewNewJob(
   if (!name)
     throw new Error('Exporter name is required to resolve the site master');
   const exporter = s.page.locator('#' + FIELDS['general.exporter']!.id);
-  await postback(s, async () => {
-    await exporter.fill(name);
-    await exporter.blur();
-  });
   const branch = s.page.locator('#' + FIELDS['general.iecBranch']!.id);
-  const options = await branch.locator('option').evaluateAll((es) =>
-    es
-      .map((e) => ({
-        value: (e as HTMLOptionElement).value,
-        label: e.textContent?.trim() ?? '',
-      }))
-      .filter((o) => o.value),
+  const readBranchOptions = async () =>
+    await branch.locator('option').evaluateAll((es) =>
+      es
+        .map((e) => ({
+          value: (e as HTMLOptionElement).value,
+          label: e.textContent?.trim() ?? '',
+        }))
+        .filter((o) => o.value),
+    );
+
+  const nameVariations = [
+    name,
+    name.replace(/\b([A-Z])([A-Z])\b/g, '$1 $2'),
+    name.replace(/\b([A-Z])\s+([A-Z])\b/g, '$1$2'),
+    name.replace(/\b([A-Z])([A-Z])\b/g, '$1. $2.'),
+    name.replace(/\b([A-Z])([A-Z])\b/g, '$1.$2.'),
+  ].filter(
+    (v, idx, arr) =>
+      normalizeName(v) === normalizeName(name) && arr.indexOf(v) === idx,
   );
+
+  let options: { value: string; label: string }[] = [];
+  for (const candidateName of nameVariations) {
+    await postback(s, async () => {
+      await exporter.fill(candidateName);
+      await exporter.blur();
+    });
+    options = await readBranchOptions();
+    if (options.length > 0) break;
+  }
   const requested = shipment.fields['general.iecBranch']?.value;
   const candidates = requested
     ? options.filter((o) => o.value === requested || o.label === requested)

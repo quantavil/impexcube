@@ -108,6 +108,23 @@ export async function assertSession(
 ): Promise<void> {
   if (!s.page.url().startsWith(BASE_URL))
     throw new Error('Unexpected browser destination');
+  if (jobNo) {
+    try {
+      await s.page.waitForFunction(
+        ([job, ids]) =>
+          ids.some(
+            (id) =>
+              (document.getElementById(id) as HTMLInputElement | null)
+                ?.value === job,
+          ),
+        [
+          jobNo,
+          ['ContentPlaceHolder1_txtjno', 'ContentPlaceHolder1_txtJobNo'],
+        ] as const,
+        { timeout: 5000 },
+      );
+    } catch {}
+  }
   const snapshot = await s.page.locator('body').evaluate((body) => ({
     text: (body as HTMLElement).innerText,
     jobs: ['ContentPlaceHolder1_txtjno', 'ContentPlaceHolder1_txtJobNo'].map(
@@ -116,7 +133,9 @@ export async function assertSession(
   }));
   assertContextText(snapshot.text, s.context);
   if (jobNo && !snapshot.jobs.includes(jobNo))
-    throw new Error('Target job context mismatch');
+    throw new Error(
+      `Target job context mismatch: expected ${jobNo}, got [${snapshot.jobs.join(', ')}] on ${s.page.url()}`,
+    );
 }
 export async function ensureContext(
   s: BrowserSession,

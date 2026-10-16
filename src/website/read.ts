@@ -119,11 +119,18 @@ export async function openSection(
     if (await tab.isVisible()) await tab.click();
     else if (await back.isVisible()) await postback(s, () => back.click());
     else await s.page.goto(url);
-  } else if (section === 'shipment')
+  } else if (section === 'shipment') {
+    if (
+      new URL(s.page.url()).pathname !== '/frmExportJobCreation.aspx' ||
+      !(await s.page
+        .getByRole('button', { name: 'Shipment', exact: true })
+        .isVisible())
+    )
+      await openSection(s, jobNo, 'general');
     await postback(s, () =>
       s.page.getByRole('button', { name: 'Shipment', exact: true }).click(),
     );
-  else if (section === 'exchange') {
+  } else if (section === 'exchange') {
     if (
       !(await s.page
         .getByRole('link', { name: 'Exchange Rate', exact: true })
@@ -139,6 +146,7 @@ export async function openSection(
         !(await s.page.locator('#' + FIELDS['invoice.number']!.id).isVisible())
       ) {
         if (
+          new URL(s.page.url()).pathname !== '/frmExportJobCreation.aspx' ||
           !(await s.page
             .getByRole('button', { name: 'Invoice', exact: true })
             .isVisible())

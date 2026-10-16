@@ -248,7 +248,10 @@ async function main() {
 try {
   await main();
 } catch (error) {
-  const message = error instanceof Error ? error.message : 'Operation failed';
+  const message =
+    error instanceof Error
+      ? (error.stack ?? error.message)
+      : 'Operation failed';
   const secrets = [
     process.env.IMPEX_USERNAME,
     process.env.IMPEX_PASSWORD,
