@@ -32,6 +32,11 @@ export async function canonicalOption(
   if (value.trim() === '') {
     const blanks = options.filter((o) => o.value.trim() === '');
     if (blanks.length === 1) return blanks[0]!.value;
+    const none = options.filter(
+      (o) =>
+        o.value.toUpperCase() === 'NONE' || o.label.toUpperCase() === 'NONE',
+    );
+    if (none.length === 1) return none[0]!.value;
   }
   const matched = options.filter(
     (o) =>

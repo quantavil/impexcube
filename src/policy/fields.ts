@@ -157,9 +157,14 @@ add('shipment', 'ContentPlaceHolder1_Shipment_TabPanelExch_', {
     'fixed',
     { value: 'C-Containerized Cargo' },
   ],
-  containerCount: ['txtnoofContainer', 'decimal', 'new_or_old'],
+  containerCount: [
+    'txtnoofContainer',
+    'decimal',
+    'new_or_old',
+    { value: '0', emptySavedAs: 'zero' },
+  ],
   sealType: ['ddlSealType', 'select', 'site', { readonly: true }],
-  annexure: ['ChkAnnexure', 'check', 'site', { readonly: true }],
+  annexure: ['ChkAnnexure', 'check', 'new_or_old'],
   loosePackages: ['txtLoosePkgs', 'decimal', 'fixed', { value: '0' }],
   mbl: ['txtMBLNO', 'text', 'fixed', { value: '' }],
   mblDate: ['txtMBLDate', 'date', 'fixed', { value: '' }],
@@ -470,6 +475,8 @@ export function matchesNativeEmpty(
 ): boolean {
   const d = FIELDS[field];
   if (expected.trim() !== '') return false;
+  if (field === 'shipment.marksType' && actual.trim().toUpperCase() === 'NONE')
+    return true;
   const zero = (s: string) => /^0+(?:\.0+)?$/.test(s.trim());
   return d?.emptySavedAs === 'zero' && zero(actual);
 }

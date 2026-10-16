@@ -61,7 +61,6 @@ test.each([
   'general.assignedTo',
   'general.moowr',
   'shipment.sealType',
-  'shipment.annexure',
   'invoice.exchangeRate',
   'invoice.amountINR',
   'charges.freightCurrency',
@@ -178,6 +177,23 @@ test('document-only missing values ignore previous values', () => {
   expect(
     patch.operations.find((o) => o.field === 'charges.discount')?.value,
   ).toBe('');
+});
+
+test('shipment.annexure falls back to previous job value when current is unknown', () => {
+  const patch = mergeShipment(
+    {
+      ...source,
+      fields: { 'shipment.annexure': 'true' },
+    },
+    {
+      context: source.context,
+      fields: { 'shipment.annexure': field(null) },
+      invoices: [{}],
+    },
+  );
+  expect(
+    patch.operations.find((o) => o.field === 'shipment.annexure')?.value,
+  ).toBe('true');
 });
 
 test('conditional buyer fields are omitted when the resolved checkbox is false', () => {

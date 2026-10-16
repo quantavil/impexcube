@@ -92,6 +92,7 @@ export async function openSession(
     await postback(s, () =>
       page.getByRole('button', { name: 'GO', exact: true }).click(),
     );
+    await dismissNotifications(s);
     await assertSession(s);
     return s;
   } catch (e) {
@@ -137,6 +138,27 @@ export async function assertSession(
       `Target job context mismatch: expected ${jobNo}, got [${snapshot.jobs.join(', ')}] on ${s.page.url()}`,
     );
 }
+
+export async function dismissNotifications(s: BrowserSession): Promise<void> {
+  const okBtn = s.page.locator('.jconfirm-buttons button, .jconfirm button');
+  if (
+    (await okBtn.count()) > 0 &&
+    (await okBtn
+      .first()
+      .isVisible()
+      .catch(() => false))
+  ) {
+    await okBtn
+      .first()
+      .click()
+      .catch(() => {});
+    await s.page
+      .locator('.jconfirm')
+      .waitFor({ state: 'hidden', timeout: 5000 })
+      .catch(() => {});
+  }
+}
+
 export async function ensureContext(
   s: BrowserSession,
   context: Context,
@@ -146,6 +168,7 @@ export async function ensureContext(
     s.context = context;
     return;
   } catch {}
+  await dismissNotifications(s);
   await s.page.locator('#btnBranch').click();
   await s.page
     .getByRole('combobox', { name: 'Please Select Branch', exact: true })
@@ -165,6 +188,7 @@ export async function ensureContext(
   await postback(s, () =>
     s.page.getByRole('button', { name: 'GO', exact: true }).click(),
   );
+  await dismissNotifications(s);
   s.context = context;
   await assertSession(s);
 }

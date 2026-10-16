@@ -42,6 +42,17 @@ export async function previewNewJob(
 
   const nameVariations = [
     name,
+    name.replace(/\s+/g, ' ').trim(),
+    name
+      .replace(/\bPVT\b\.?/gi, 'PRIVATE')
+      .replace(/\bLTD\b\.?/gi, 'LIMITED')
+      .replace(/\s+/g, ' ')
+      .trim(),
+    name
+      .replace(/\bPRIVATE\b/gi, 'PVT')
+      .replace(/\bLIMITED\b/gi, 'LTD')
+      .replace(/\s+/g, ' ')
+      .trim(),
     name.replace(/\b([A-Z])([A-Z])\b/g, '$1 $2'),
     name.replace(/\b([A-Z])\s+([A-Z])\b/g, '$1$2'),
     name.replace(/\b([A-Z])([A-Z])\b/g, '$1. $2.'),

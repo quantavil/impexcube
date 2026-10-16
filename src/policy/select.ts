@@ -17,7 +17,6 @@ export function selectSource(
   if (!normalizeName(name)) return [issue('identity', 'Exporter required')];
   let pool = candidates.filter(
     (c) =>
-      c.context.branch === s.context.branch &&
       !c.cancelled &&
       (iec
         ? c.iec === iec
@@ -36,6 +35,8 @@ export function selectSource(
     return [
       issue('no_source', 'No eligible exporter job in selected financial year'),
     ];
+  const sameBranch = pool.filter((c) => c.context.branch === s.context.branch);
+  if (sameBranch.length) pool = sameBranch;
   try {
     for (const c of pool) {
       normalizeDate(c.jobDate);

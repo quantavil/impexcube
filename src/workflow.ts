@@ -243,7 +243,7 @@ export async function prepareRun(
   await ensureContext(s, context);
   let sourceSnapshot = old?.sourceSnapshot ?? null,
     reason = old?.reason ?? 'new_exporter';
-  if (!old) {
+  if (!sourceSnapshot) {
     const selection = selectSource(
       await discoverCandidates(s, shipment),
       shipment,
@@ -252,7 +252,13 @@ export async function prepareRun(
       if (selection.some((i) => i.code !== 'no_source'))
         throw new Error(selection.map((i) => i.message).join('; '));
     } else {
-      sourceSnapshot = await readSnapshot(s, selection.source.jobNo);
+      if (selection.source.context.branch !== s.context.branch) {
+        await ensureContext(s, selection.source.context);
+        sourceSnapshot = await readSnapshot(s, selection.source.jobNo);
+        await ensureContext(s, context);
+      } else {
+        sourceSnapshot = await readSnapshot(s, selection.source.jobNo);
+      }
       reason = selection.reason;
     }
   }

@@ -42,7 +42,7 @@ test('falls back to latest exporter and numeric suffix resolves equal dates', ()
   expect(r.source.jobNo).toBe('VIDE-EXP-2627-10');
   expect(r.reason).toBe('exporter_fallback');
 });
-test('cancelled and other branch/IEC jobs cannot win', () => {
+test('cancelled and other branch/IEC jobs cannot win when same branch candidate exists', () => {
   const r: any = selectSource(
     [
       c('VIDE-EXP-2627-9', '01/07/2026', 'BUYER A'),
@@ -55,6 +55,20 @@ test('cancelled and other branch/IEC jobs cannot win', () => {
     shipment,
   );
   expect(r.source.jobNo).toBe('VIDE-EXP-2627-9');
+});
+test('falls back to eligible exporter candidate from another branch when target branch has none', () => {
+  const r: any = selectSource(
+    [
+      c('EXP-2627-11', '01/09/2026', 'BUYER A', {
+        context: { ...context, branch: 'MORADABAD' },
+      }),
+    ],
+    {
+      ...shipment,
+      context: { branch: 'DELHI', financialYear: '2026-2027' },
+    },
+  );
+  expect(r.source.jobNo).toBe('EXP-2627-11');
 });
 test('malformed latest dates and ambiguous names block selection', () => {
   expect(

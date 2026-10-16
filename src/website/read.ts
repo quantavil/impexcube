@@ -312,43 +312,78 @@ export async function listJobNumbers(
   const iec = spec.fields['general.iec']?.value;
   const exporter = spec.fields['general.exporter']?.value;
   if (!exporter) throw new Error('Exporter required');
-  await s.page
-    .locator('#ContentPlaceHolder1_ddlsearch')
-    .selectOption({ label: iec ? 'IECCode' : 'Exporter Name' });
-  await s.page.locator('#ContentPlaceHolder1_txtSearch').fill(iec ?? exporter);
-  await postback(s, () =>
-    s.page.getByRole('button', { name: 'Search', exact: true }).click(),
-  );
-  const found = new Map<
-      string,
-      { jobNo: string; jobDate: string; cancelled: boolean }
-    >(),
-    seen = new Set<string>();
-  let pageNumber = 1;
-  for (;;) {
-    await assertSession(s);
-    const table = s.page.locator('#ContentPlaceHolder1_gvJobNo');
-    if (!(await table.count())) break;
-    const signature = await table.innerText();
-    if (seen.has(signature)) throw new Error('Pagination did not advance');
-    seen.add(signature);
-    const rows = await readVisibleTableRows(table.locator('tr'));
-    for (const r of parseJobRows(rows)) found.set(r.jobNo, r);
-    pageNumber++;
-    const next = table.locator(`a[href*="Page$${pageNumber}'"]`);
-    if (await next.count()) await postback(s, () => next.click());
-    else {
-      const ellipsis = table
-        .getByRole('link', { name: '...', exact: true })
-        .last();
-      const href = (await ellipsis.count())
-        ? await ellipsis.getAttribute('href')
-        : null;
-      const target = href?.match(/Page\$(\d+)/)?.[1];
-      if (target && Number(target) === pageNumber)
-        await postback(s, () => ellipsis.click());
-      else break;
+
+  const searches: { mode: 'IECCode' | 'Exporter Name'; query: string }[] = [];
+  if (iec) searches.push({ mode: 'IECCode', query: iec });
+
+  const raw = exporter.trim();
+  const cleanCore = raw
+    .replace(/\b(pvt|private|ltd|limited)\b\.?/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const pvtToPrivate = raw
+    .replace(/\bPVT\b\.?/gi, 'PRIVATE')
+    .replace(/\bLTD\b\.?/gi, 'LIMITED')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const privateToPvt = raw
+    .replace(/\bPRIVATE\b/gi, 'PVT')
+    .replace(/\bLIMITED\b/gi, 'LTD')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  for (const v of [raw, cleanCore, pvtToPrivate, privateToPvt]) {
+    if (
+      v &&
+      !searches.some(
+        (item) => item.mode === 'Exporter Name' && item.query === v,
+      )
+    ) {
+      searches.push({ mode: 'Exporter Name', query: v });
     }
+  }
+
+  const found = new Map<
+    string,
+    { jobNo: string; jobDate: string; cancelled: boolean }
+  >();
+
+  for (const search of searches) {
+    await s.page
+      .locator('#ContentPlaceHolder1_ddlsearch')
+      .selectOption({ label: search.mode });
+    await s.page.locator('#ContentPlaceHolder1_txtSearch').fill(search.query);
+    await postback(s, () =>
+      s.page.getByRole('button', { name: 'Search', exact: true }).click(),
+    );
+    const seen = new Set<string>();
+    let pageNumber = 1;
+    for (;;) {
+      await assertSession(s);
+      const table = s.page.locator('#ContentPlaceHolder1_gvJobNo');
+      if (!(await table.count())) break;
+      const signature = await table.innerText();
+      if (seen.has(signature)) break;
+      seen.add(signature);
+      const rows = await readVisibleTableRows(table.locator('tr'));
+      for (const r of parseJobRows(rows)) found.set(r.jobNo, r);
+      pageNumber++;
+      const next = table.locator(`a[href*="Page$${pageNumber}'"]`);
+      if (await next.count()) await postback(s, () => next.click());
+      else {
+        const ellipsis = table
+          .getByRole('link', { name: '...', exact: true })
+          .last();
+        const href = (await ellipsis.count())
+          ? await ellipsis.getAttribute('href')
+          : null;
+        const target = href?.match(/Page\$(\d+)/)?.[1];
+        if (target && Number(target) === pageNumber)
+          await postback(s, () => ellipsis.click());
+        else break;
+      }
+    }
+    if (found.size > 0) break;
   }
   return [...found.values()];
 }
@@ -357,8 +392,16 @@ export async function discoverCandidates(
   spec: Shipment,
 ): Promise<Candidate[]> {
   await ensureContext(s, spec.context);
+  let records = (await listJobNumbers(s, spec)).filter((r) => !r.cancelled);
+  let discoveryBranch = s.context.branch;
+  if (records.length === 0) {
+    const altBranch =
+      spec.context.branch === 'MORADABAD' ? 'DELHI' : 'MORADABAD';
+    await ensureContext(s, { ...spec.context, branch: altBranch });
+    records = (await listJobNumbers(s, spec)).filter((r) => !r.cancelled);
+    discoveryBranch = s.context.branch;
+  }
   const out: Candidate[] = [];
-  const records = (await listJobNumbers(s, spec)).filter((r) => !r.cancelled);
   for (const r of records) normalizeDate(r.jobDate);
   records.sort(
     (a, b) =>
@@ -376,7 +419,7 @@ export async function discoverCandidates(
     )
       out.push({
         ...r,
-        context: { ...s.context },
+        context: { ...spec.context, branch: discoveryBranch },
         exporterName: f['general.exporter'] ?? '',
         iec: f['general.iec'] ?? null,
         consigneeName: f['general.consignee'] ?? '',
@@ -389,6 +432,9 @@ export async function discoverCandidates(
           normalizeName(spec.fields['general.consignee']?.value ?? ''))
     )
       break;
+  }
+  if (s.context.branch !== spec.context.branch) {
+    await ensureContext(s, spec.context);
   }
   return out;
 }

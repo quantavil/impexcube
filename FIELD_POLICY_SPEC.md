@@ -61,9 +61,9 @@ This is the authoritative business policy. `src/policy/fields.ts` implements it.
 | **Marks & Numbers Declaration**<br/>`shipment.marks` | ✅ Reviewed | **🔄 Doc -> Past Fallback** | `-` | By default retain previous declarations (including RODTEP/LUT) and update only a recognized package range or TOTAL count from current range/total evidence. Cartons, CTN, packages, PKG and boxes are equivalent package labels; never reinterpret pieces or declaration identifiers. Preserve formatting and leading zeros. Current range cardinality must agree with the current package total when both exist. Ambiguous/multiple ranges require complete instructions; explicit complete instructions or blanks override. |
 | **Marks Scheme (None, ROSCTL, etc.)**<br/>`shipment.marksType` | ✅ Reviewed | **🔄 Doc -> Past Fallback** | `-` | - |
 | **Nature of Cargo (Container / Bulk)**<br/>`shipment.cargoNature` | ✅ Reviewed | **⚙️ Fixed/Default** | `C-Containerized Cargo` | - |
-| **Number of Containers**<br/>`shipment.containerCount` | ✅ Reviewed | **🔄 Doc -> Past Fallback** | `-` | - |
+| **Number of Containers**<br/>`shipment.containerCount` | ✅ Reviewed | **🔄 Doc -> Past Fallback** | `0` when unavailable | - |
 | **Seal Type**<br/>`shipment.sealType` | ✅ Reviewed | **🔒 System Locked** | `-` | - |
-| **Annexure Attached Flag**<br/>`shipment.annexure` | ✅ Reviewed | **🔒 System Locked** | `-` | - |
+| **Annexure Attached Flag**<br/>`shipment.annexure` | ✅ Reviewed | **🔄 Doc -> Past Fallback** | `-` | - |
 | **Loose Packages Count**<br/>`shipment.loosePackages` | ✅ Reviewed | **⚙️ Fixed/Default** | `0` | - |
 | **Master Bill of Lading (MBL) No**<br/>`shipment.mbl` | ✅ Reviewed | **⚙️ Fixed/Default** | `-` | Master B/L issued after vessel load; kept empty at filing |
 | **MBL Date**<br/>`shipment.mblDate` | ✅ Reviewed | **⚙️ Fixed/Default** | `-` | Master B/L date; kept empty |
